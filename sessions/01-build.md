@@ -31,7 +31,7 @@ What the builder could and could not see, and how each was established.
 
 | Channel | State | How verified |
 | --- | --- | --- |
-| Experiment material (protocol, spec, paper, playbook) | Not reachable | Those live in a claude.ai Project and in `Research-Five-critics-or-one-good-prompt`. The build ran in a terminal with no project attachment and a working directory of `~/dev/idea-log`. |
+| Experiment material (protocol, spec, paper, playbook) | Not reachable | Those live in a claude.ai Project and in `Five-Critics-or-One-Good-Prompt`. The build ran in a terminal with no project attachment and a working directory of `~/dev/idea-log`. |
 | This conversation's history | Not reachable | Separate session, separate surface, no shared context |
 | Repository-level instructions (`CLAUDE.md`, `AGENTS.md`, `.kiro/`) | None existed | `~/dev/idea-log` contained only `.git` at session start |
 | Prior session history for this directory | None | The directory was created the same evening |
