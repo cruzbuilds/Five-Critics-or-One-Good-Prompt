@@ -1,11 +1,41 @@
 # Five critics or one good prompt
 
-**Does a swarm of five specialized AI reviewers actually catch more than one good general prompt?
-I built the swarm, so I am the wrong person to answer that. This is me checking anyway, in public,
-with the predictions written down first.**
+## AI is not wrong. It needs direction.
+
+That is what I am trying to show, and this is the experiment I am using to find out whether I am
+right.
+
+On day one of this study, the coding agent that built my subject application told me it was "tested
+end-to-end." It was telling the truth. It had run a real test plan against a live server, unprompted,
+including the cross-user privacy checks that matter most in that app. It left behind no test file, no
+framework, no test script. All of that work happened in a terminal session that no longer exists.
+
+**The capability was there. The instruction was not.** That is not an AI problem. That is the same
+thing that happens when an engineer tests carefully and writes nothing down: the work was real, and
+six months later nobody can prove it happened, so in practice it did not.
+
+If that is right, then the useful question is not whether AI can write good code. It is what kind of
+direction turns what it does into something a person can verify. This study measures one version of
+that question.
 
 Status: **the subject is built and frozen, no reviews have run yet.** Results are not in. Nothing here
 concludes anything.
+
+---
+
+## The claim, stated so it can lose
+
+"AI needs direction" is too comfortable to be a thesis on its own. Any result confirms it, which means
+it says nothing. So here is the sharper version, written before the results:
+
+**Direction is what converts capability into evidence, and the amount required is an empirical
+question.** My swarm is a lot of direction: five written charters saying what must be checked and what
+must be reported. A single good prompt is less direction. This study measures whether the extra buys
+anything real.
+
+It can lose, and here is how: if five charters produce no more valid findings than one strong prompt,
+then a paragraph of direction is enough, my charters are over-engineering, and I will say exactly that
+here. I wrote that commitment down before running anything.
 
 ---
 
