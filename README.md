@@ -64,6 +64,42 @@ charters are decoration and the honest conclusion is that any careful AI review 
 
 That is worth knowing, so I am checking.
 
+## The thing being tested: agentic-review-swarm
+
+**Repository: [cruzbuilds/agentic-review-swarm](https://github.com/cruzbuilds/agentic-review-swarm)**
+
+The swarm is five AI reviewers that read the same change at once, each from one angle, each with a
+written charter naming what it blocks on and what it must stay out of. Their findings merge into one
+verdict, and any single BLOCK is a BLOCK.
+
+| Agent | Blocks on |
+| --- | --- |
+| `security-reviewer` | Credentials in source, untrusted input reaching a query or shell, mutating endpoints with no auth check, over-broad permissions, critical dependency vulnerabilities |
+| `test-reviewer` | New behavior with no test, a test that cannot fail, tests removed or skipped to go green, coverage dropped on changed lines |
+| `docs-reviewer` | README behind the code, undocumented environment variables, decisions with no record, resources with no teardown, "not production ready" with no specifics |
+| `infra-reviewer` | Hardcoded resource identifiers, static cloud keys in CI, mutable action versions on deploy steps, jobs with no permissions block, infrastructure with no teardown |
+| `scope-reviewer` | Work that was not agreed, work explicitly excluded, constraining decisions with no ADR, dependencies with no justification |
+
+Three things about it matter for this study.
+
+**The charter is the agent.** Each one is a page of English saying what to block on, what to warn on,
+and what to leave alone, not a tuned prompt nobody can read. That is what "direction" means here, and
+it is what is on trial.
+
+**Every agent is proven against planted defects before it reviews anything real.** 35 seeded cases,
+including clean ones, because an agent that blocks everything is as useless as one that passes
+everything.
+
+**It has a track record with a hole in it.** It reviewed every pull request on
+[shelflife](https://github.com/cruzbuilds/shelflife): 37 findings, none overridden, and by my own
+count I would have missed 21 of the 33 actionable ones reading the diff alone. It has also blocked
+changes to itself, twice in one afternoon, and was right both times.
+
+The hole is that there is no control group anywhere in that record. Which is this experiment.
+
+**Version under test:** pinned at a specific commit before arm B runs and frozen there. If the swarm
+changes mid-study, the study restarts or each version is reported separately.
+
 ## What the experiment is
 
 One application, generated fast from a single paragraph, frozen. Two ways of reviewing it:
