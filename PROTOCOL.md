@@ -29,14 +29,14 @@ already good at it. The gap is assurance: nothing tells a risk owner what was ch
 
 **Definitions, fixed.**
 
-- **Trust** — a decision-maker's willingness to permit AI-assisted development in their environment.
-- **Assurance** — evidence that a specific class of problem was looked for, by a stated rule, with a
+- **Trust.** A decision-maker's willingness to permit AI-assisted development in their environment.
+- **Assurance.** Evidence that a specific class of problem was looked for, by a stated rule, with a
   recorded outcome. Separate from defect detection. A review can find things and produce no
   assurance, and the reverse.
-- **AI-generated code** — the frozen application, produced from one paragraph by a coding agent,
+- **AI-generated code.** The frozen application, produced from one paragraph by a coding agent,
   unreviewed and unedited by a human.
-- **Single-agent review** — one model session, one good general prompt, no roles.
-- **Multi-agent review** — five reviewers with written charters, run in parallel, merged into one
+- **Single-agent review.** One model session, one good general prompt, no roles.
+- **Multi-agent review.** Five reviewers with written charters, run in parallel, merged into one
   verdict.
 
 **Out of scope.** Whether AI should write production code. Vendor comparisons. Comparison against
@@ -72,8 +72,8 @@ a critical the other caught. Raw totals reward whichever condition talks more.
 > **H0.** The swarm produces no meaningful improvement in valid findings, domain coverage, or
 > actionability over the single-agent reviewer.
 
-- **Expected advantage of specialization:** domains a general reviewer has no reason to prioritize —
-  tests that cannot fail, documentation drift, teardown, scope.
+- **Expected advantage of specialization:** domains a general reviewer has no reason to
+  prioritize, such as tests that cannot fail, documentation drift, teardown, scope.
 - **Expected disadvantage:** duplication across agents, higher cost, and five chances to produce a
   false positive instead of one.
 - **Where the single agent may do better:** whole-system reasoning that crosses lanes, and precision,

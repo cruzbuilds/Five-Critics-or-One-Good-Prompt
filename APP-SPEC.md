@@ -54,7 +54,7 @@ No administrator role. Nobody can read another user's ideas through the applicat
 ### Ideas
 
 An idea has: title, description, status (`open`, `building`, `built`, `dropped`), created date, and
-four scores from 1 to 5 — differentiation, evidence, cost, reversibility — with a computed total.
+four scores from 1 to 5 (differentiation, evidence, cost, reversibility) with a computed total.
 
 - Create, read, update, delete.
 - List own ideas, sorted by total score descending, with status filtering.

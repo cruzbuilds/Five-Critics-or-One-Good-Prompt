@@ -20,9 +20,9 @@ is "everything you know about it is in the repository." That is true for arm B a
 
 ## The prompt
 
-> You are reviewing a web application before it goes to production. Read the repository thoroughly —
+> You are reviewing a web application before it goes to production. Read the repository thoroughly:
 > the source, the configuration, the database schema and migrations, the dependency manifest and the
-> documentation — and report everything wrong with it.
+> documentation. Report everything wrong with it.
 >
 > Be comprehensive. Consider correctness, security, authentication and authorization, data handling,
 > input validation, error handling, dependencies, database design, infrastructure and deployment

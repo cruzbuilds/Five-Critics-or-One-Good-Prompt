@@ -1,4 +1,4 @@
-# Session 01 — generation
+# Session 01: generation
 
 ## Metadata
 - UTC start:                 2026-09-17T21:31:53Z
@@ -62,7 +62,7 @@ Every question and answer, in order, verbatim.
 - [HH:MM] AGENT ASKED:
 - [HH:MM] I ANSWERED:
 
-- [~21:5x] CLIENT OFFERED: "Claude wants to use your browser" — an offer to install the Claude in
+- [~21:5x] CLIENT OFFERED: "Claude wants to use your browser", an offer to install the Claude in
   Chrome extension so the session could navigate sites, click buttons and fill forms.
 - [~21:5x] I CHOSE: "Not now." Declined, and did not choose "Don't ask again," which would have
   written a persistent setting outside the experiment.
