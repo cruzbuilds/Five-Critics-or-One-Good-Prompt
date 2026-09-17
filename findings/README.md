@@ -12,7 +12,21 @@ The history of what I believed and when is part of the result, and rewriting it 
 thing that makes the scoring checkable by someone who does not trust me.
 
 This is enforced, not promised: `scripts/check-append-only.sh` fails if any previously committed line
-in this directory changed or disappeared. CI runs it, and so does any commit I make by hand.
+in this directory changed or disappeared.
+
+The guard was tested against all three ways it could be bypassed, and it catches each:
+
+| Attempt | Result |
+| --- | --- |
+| Append a new row | allowed, exit 0 |
+| Edit a committed verdict in place | **refused**, exit 1, names the file and prints the removed line |
+| Delete a committed evidence file | **refused**, exit 1 |
+
+One deliberate exception: editing a line you have written but not yet committed is allowed, because it
+is not yet on the record. Once committed, it is permanent.
+
+The test row used to prove this was removed in its own commit, before any real adjudication, and that
+removal is visible in the history of this repository like everything else.
 
 ## Why this matters more than it sounds
 
