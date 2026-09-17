@@ -10,10 +10,10 @@ the subject application.
 | `idea-log` | **The specimen.** Frozen, sealed, never worked in by anyone. | The generated application at `v0-raw` | Private until publication |
 | `idea-log-armA` | Working copy for the single general reviewer | Identical tree, own history | Private until publication |
 | `idea-log-armB` | Working copy for the swarm | Identical tree, own history | Private until publication |
-| `review-experiment-001` | **The study.** Not code under test. | Protocol, specification, predictions, baseline output, raw reports, findings, notebook, this file | Public from the start |
+| `Research-Five-critics-or-one-good-prompt` | **The study.** Not code under test. | Protocol, specification, predictions, baseline output, raw reports, findings, notebook, this file | Public from the start |
 
 The separation between the first three and the fourth is what lets the build session be called clean:
-the coding agent worked in `idea-log` and had no path to `review-experiment-001`, where the
+the coding agent worked in `idea-log` and had no path to `Research-Five-critics-or-one-good-prompt`, where the
 specification and the reviewers' criteria live.
 
 The original is not a workspace. Nobody opens it, reviews in it, or fixes anything in it. Each arm
@@ -59,3 +59,13 @@ readable from inside the repository as well as from this document.
 3. That the predictions were sealed before any review, from the commit date on `PREDICTIONS.md` in
    this public repository.
 4. That the baseline scans were run against the frozen commit, from the raw output in `baseline/`.
+
+## A note on names
+
+This repository was created as `review-experiment-001` and renamed to
+`Research-Five-critics-or-one-good-prompt` on 2026-09-17, before any review ran, because the original
+name told a visitor nothing. GitHub redirects the old URL.
+
+The local working directory is still `~/dev/review-experiment-001`. That mismatch is cosmetic and is
+recorded here so nobody reading a command in the session logs thinks they are looking at a different
+repository.
