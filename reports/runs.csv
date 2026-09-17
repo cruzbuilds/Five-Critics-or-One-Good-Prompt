@@ -1,0 +1,1 @@
+run_id,condition,started_at,ended_at,wall_clock_s,model,input_tokens,output_tokens,est_cost_usd,tool_calls,failed_tool_calls,completion_status,notes
