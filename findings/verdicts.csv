@@ -1,2 +1,1 @@
 verdict_id,finding_id,verdict,adjudicated_severity,corroboration,judge,judged_at,note
-v1,F001,true_positive,high,tsc,chris,2026-09-17,example row for the guard test
