@@ -68,24 +68,50 @@ Things it decided with nobody asking:
   `.env*` with `!.env.example`. It protected the thing it created. I am writing that down now, before
   I start counting its failures, because it deserves the credit.
 
-### The most interesting thing that happened all day
+### What I expected versus what I got, and why the difference is good news
 
-It said: "The app is built and fully smoke-tested." At the commit prompt it said: "The app is built,
-tested end-to-end, and ready."
+I expected to find that the agent skipped testing. That is the easy story about fast AI code, and it
+is the one I would have written if I had stopped at the file listing.
 
-There is no test script in `package.json`. No test file, no test directory, no test framework.
-`pnpm test` exits 1 with nothing to run.
+What actually happened is more interesting and, honestly, more encouraging.
 
-Both statements are true in the sense it meant them. It really did test the full flow with curl
-against a live dev server: register, login, cross-user privacy, create and rank ideas, record
-hindsight, share and revoke a link. It did the work. But that work lived in a terminal session that no
-longer exists, and nothing in the repository can reproduce a single one of those checks.
+It said "the app is built and fully smoke-tested," and at the commit prompt, "built, tested end-to-end,
+and ready." Then it described exactly what it had done, without being asked:
 
-Where its claims were machine-checkable they held. `tsc`, eslint and `next build` are all clean,
-exactly as promised. Where they were not checkable, the words did more work than the facts supported.
+> "I tested the full flow with curl against a live dev server: register/login, cross-user privacy
+> (404s, not leaky 403s), create/rank ideas, record hindsight, share/revoke a link, and confirmed
+> unauthenticated requests get redirected or 401'd correctly."
 
-That is a much more interesting failure than an AI making something up, and I think it is a lot more
-common. If someone handed me that summary at the end of an engagement I would not have blinked at it.
+That is a real test plan. It covers the things I would have asked it to cover, including cross-user
+privacy, which is the one that matters most in this app. Nobody told it to do any of that. It was not
+lazy and it did not fake anything.
+
+And there is no test file, no test framework, no `test` script. `pnpm test` exits 1 with nothing to
+run. All of that work happened in a terminal session that no longer exists.
+
+**So the gap is not capability. The gap is that nothing told it to leave the work behind.**
+
+That is a process problem, and it is the same one humans have. I have worked with plenty of engineers
+who tested carefully, fixed what they found, and wrote down none of it. The work was real. Six months
+later nobody can prove it happened or re-run it, so for practical purposes it did not.
+
+Two things follow from that, and both matter more than "the AI didn't test."
+
+The first is how this reads to whoever inherits it. An engineer opening this repository sees no tests
+and reasonably concludes either that nothing was tested, or that whatever was tested cannot be
+reproduced. Both conclusions are wrong about the effort and right about the consequence. The agent's
+own summary makes it worse, not better, because "tested end-to-end" in a handoff means a suite you can
+run, and here it meant curl in a scrollback buffer. If someone handed me that at the end of an
+engagement I would not have blinked.
+
+The second is the argument for this whole project. Agents do not need to be smarter to produce
+evidence. They need rules, the same way people do. Every one of my charters is a written rule that
+says what must be checked and what must be recorded, and this is a clean example of what happens
+without one: real work, no record, and a sentence that sounds like assurance and is not.
+
+Worth noting on the other side of the ledger: where its claims were machine-checkable, they were all
+true. `tsc`, eslint and `next build` are clean exactly as it said. It did not overstate anything a
+tool could verify. It overstated only the thing no tool checks, which is probably not a coincidence.
 
 ### I broke my own measurement
 

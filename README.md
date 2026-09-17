@@ -83,25 +83,39 @@ the swarm is unnecessary and I will have spent a month of evenings learning some
 | `reports/` | Raw review output, unedited. Empty until the runs happen |
 | `findings/` | The scored dataset. Empty until adjudication |
 
-## The most interesting thing so far, and no reviewer found it
+## What I expected versus what I got
 
-The coding agent finished and told me the app was "built and fully smoke-tested." At the commit prompt
-it said "built, tested end-to-end, and ready."
+I expected to open the repository and find that the agent had skipped testing. That is the easy story
+about fast AI code.
 
-It was telling the truth about what it did. It ran the whole flow with curl against a live dev server:
-register, login, cross-user privacy, create ideas, record hindsight, share and revoke a link. Its three
-machine-checkable claims all verify: `tsc`, eslint and `next build` are clean.
+What I found is better than that, and more useful.
 
-The repository has no test file, no test framework, and no test script. `pnpm test` exits 1 with
-nothing to run. Every check it did lived in a terminal session that no longer exists. Change a line
-tomorrow and nothing tells you cross-user privacy broke.
+It told me the app was "fully smoke-tested" and "tested end-to-end, and ready." Then it described the
+test plan it had run, unprompted: register and login, cross-user privacy, create and rank ideas,
+record hindsight, share and revoke a link, unauthenticated requests redirected or rejected. That is a
+real plan, and it covers the thing that matters most in this app. Nobody asked it to do any of it.
 
-That is not a hallucination. It did the work, then described it with a word that means something
-stronger than what it did. No scanner catches this, because nothing is wrong with any line of code.
-The defect is an absence plus a claim, and it is exactly the kind of thing I would skim past in a
-handoff.
+There is also no test file, no test framework, and no test script. `pnpm test` exits 1 with nothing to
+run. Every one of those checks happened in a terminal session that no longer exists.
 
-Whether either reviewer notices is the sharpest thing I predicted. My guess is on the record.
+**So the gap is not capability. Nothing told it to leave the work behind.**
+
+That is a process problem, and it is the same one people have. I have worked with engineers who tested
+carefully, fixed what they found, and wrote none of it down. The work was real. Six months later
+nobody can prove it happened, so in practice it did not.
+
+It matters twice over. An engineer inheriting this repo sees no tests and concludes either that
+nothing was tested or that nothing can be reproduced, and the agent's own summary makes that worse,
+because "tested end-to-end" in a handoff means a suite you can run. And it is the argument for this
+whole project in one story: agents do not need to be smarter to produce evidence, they need rules,
+the same way people do. A charter is a written rule about what gets checked and what gets recorded.
+This is what the absence of one looks like.
+
+One thing on the other side of the ledger: everything it claimed that a tool could verify was true.
+`tsc`, eslint and `next build` are clean exactly as promised. It overstated only the thing no tool
+checks, which is probably not a coincidence.
+
+Whether either reviewer notices is the sharpest thing I predicted, and my guess is on the record.
 
 ## What this will not tell you
 
