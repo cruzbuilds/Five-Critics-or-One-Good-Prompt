@@ -140,14 +140,14 @@ the swarm is unnecessary and I will have spent a month of evenings learning some
 | --- | --- |
 | [`NOTEBOOK.md`](NOTEBOOK.md) | The running story, written the same day things happen, including the parts that went wrong |
 | [`PREDICTIONS.md`](PREDICTIONS.md) | What I predicted, sealed before any review |
-| `experiment-001-protocol.md` | The method. Locked once the first review runs; every change after that is logged |
-| `experiment-001-app-spec.md` | The specification the reviewers are judged against. The builder never saw it |
+| [`PROTOCOL.md`](PROTOCOL.md) | The method. Locked once the first review runs; every change after that is logged |
+| [`APP-SPEC.md`](APP-SPEC.md) | The specification the reviewers are judged against. The builder never saw it |
 | [`PROVENANCE.md`](PROVENANCE.md) | Four repositories, one commit hash, shown not claimed |
 | [`ARM-A-PROMPT.md`](ARM-A-PROMPT.md) | Arm A's prompt, verbatim, plus why it is not a strawman |
+| [`findings/`](findings/) | The evidence layer: findings, verdicts, corrections, and the adjudication ledger. Append-only, enforced by `scripts/check-append-only.sh` |
+| [`reports/`](reports/) | Raw review output, unedited, plus per-run cost and timing. Empty until the runs happen |
 | `baseline/` | Raw output from every free scanner, run once against the frozen commit |
 | `sessions/` | What happened in each session, with every prompt and answer |
-| `reports/` | Raw review output, unedited. Empty until the runs happen |
-| `findings/` | The scored dataset. Empty until adjudication |
 
 ## What I expected versus what I got
 
@@ -187,8 +187,13 @@ Whether either reviewer notices is the sharpest thing I predicted, and my guess 
 
 One app, one stack, one model, one author. Three runs per arm describes stability, not statistics, and
 I make no statistical claim. No seeded defects, so anything both arms missed is invisible to me. The
-swarm's scope agent needs a scope document and this repo has none, so four of five charters are under
-test and I say so rather than quietly counting five. I am learning TypeScript, which is why nothing
+the swarm's scope agent needs a scope document and this repository has none, so only four charters do
+substantive code-review work here.
+
+On the name: "five critics" is still fair. The fifth critic is part of the system under evaluation,
+and the fact that it cannot operate without scope artifacts is a result rather than an exclusion. A
+team adopting this swarm for a fast-generated repository would get exactly what I got, and they should
+know that before they try it. I am learning TypeScript, which is why nothing
 counts as real on my reading alone.
 
 ## The rest
@@ -198,3 +203,9 @@ counts as real on my reading alone.
 - [project-starter](https://github.com/cruzbuilds/project-starter) - the template both came from
 
 Personal project. No employer or customer material anywhere in it.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The findings, verdicts and raw reports are published so they can be
+checked and challenged; if you think a verdict is wrong, open an issue and it gets logged in
+`findings/corrections.csv` whether I agree or not.
