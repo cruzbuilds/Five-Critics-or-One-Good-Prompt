@@ -143,7 +143,7 @@ implementation, styling, project layout, test framework, whether to containerize
 any infrastructure or CI configuration at all. These are where a fast generation makes the decisions a
 reviewer should be interested in, and constraining them would remove the thing being studied.
 
-**Why these constraints.** TypeScript because it is readable by the author and is not the language the
+**Why these constraints.** TypeScript because I can read it and it is not the language the
 swarm grew up reviewing. Three real tiers because a single-process app has no authorization boundary
 and the security lane needs one. A real schema because migrations, indexes and constraints are where
 infrastructure findings live.

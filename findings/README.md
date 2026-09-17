@@ -6,10 +6,11 @@ The evidence layer. This directory is **append-only**.
 
 **Nothing in here is ever edited or deleted. Not by me, not by a script, not to fix a typo.**
 
-A finding, once recorded, stays exactly as recorded. A verdict, once given, stays exactly as given.
-When something turns out to be wrong, the correction is a **new row** that references the old one.
-The history of what I believed and when is part of the result, and rewriting it would destroy the only
-thing that makes the scoring checkable by someone who does not trust me.
+A finding stays exactly as recorded. A verdict stays exactly as given. When something turns out to be
+wrong, the correction is a **new row** that points at the old one.
+
+The history of what I believed, and when, is part of the result. Rewriting it would destroy the only
+thing that makes my scoring checkable by someone who has no reason to trust me.
 
 This is enforced, not promised: `scripts/check-append-only.sh` fails if any previously committed line
 in this directory changed or disappeared.
@@ -30,10 +31,11 @@ removal is visible in the history of this repository like everything else.
 
 ## Why this matters more than it sounds
 
-I built one of the two things being compared and I am scoring both. The only reason anyone should
+I built one of the two things being compared, and I am scoring both. The only reason anyone should
 believe my numbers is that they can see every judgment I made, in the order I made it, including the
-ones I later changed my mind about. An edited ledger is worth nothing. A messy append-only one is
-worth quite a lot.
+ones I changed my mind about later.
+
+An edited ledger is worth nothing. A messy append-only one is worth quite a lot.
 
 ## What lives here
 

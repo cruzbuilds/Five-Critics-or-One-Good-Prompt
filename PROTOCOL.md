@@ -202,24 +202,24 @@ evidence plus reproduction plus a technically sound fix. Frozen with examples be
 
 ### 13. Adjudication
 
-The author built one of the conditions and judges both. That cannot be removed, so it is constrained
+I built one of the conditions and I am judging both. That cannot be removed, so it is constrained
 four ways, all published.
 
 **(a) The tool-corroborated subset is the headline.** Every finding records how it was corroborated: a
 `tsc` error, an eslint rule, an audit advisory, a failing test, or a runnable reproduction. Those are
-counted separately and reported first. That number does not depend on the author's opinion.
+counted separately and reported first. That number does not depend on my opinion.
 Author-judged findings are reported second, labeled.
 
-This also handles the language problem: the author is learning TypeScript, so nothing counts as a true
-positive on his reading alone. Anything he cannot corroborate and cannot confidently judge goes to
+This also handles the language problem. I am learning TypeScript, so nothing counts as a true
+positive on my reading alone. Anything I cannot corroborate and cannot confidently judge goes to
 **unverifiable**, reported separately, never in totals.
 
 **(b) Blinded, arm A first.** Labels stripped, findings shuffled, arm A's list scored in full before
-arm B's is opened.
+I open arm B's.
 
 **(c) An independent second judge.** Adjudication runs again on a model that is not the one used in
-either review condition. Its verdicts publish beside the author's, and the disagreement rate is a
-published result. Where they disagree, both calls stay visible and the author's stands, marked
+either review condition. Its verdicts publish beside mine, and the disagreement rate is a
+published result. Where we disagree, both calls stay visible and mine stands, marked
 disputed. At least 20 percent of the second judge's verdicts are hand spot-checked.
 
 **(d) Open verdicts, versioned.** The full dataset with every verdict and its evidence is published.
@@ -259,7 +259,7 @@ results were already observed, which runs are affected, effect on interpretation
 
 **Confounds being watched:** unequal tool permissions, unequal budgets, one condition seeing more
 documentation, swarm agents duplicating each other, a weak arm A prompt, an application too clean or
-too broken, model updates mid-study, non-determinism, adjudicator bias, the author's TypeScript
+too broken, model updates mid-study, non-determinism, adjudicator bias, my TypeScript
 inexperience, the same model as reviewer and judge, and excluding failed runs.
 
 **Failure log.** Crashes, context limits, rate limits, malformed reports, hallucinated files,
