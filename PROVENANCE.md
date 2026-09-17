@@ -1,13 +1,20 @@
 # Provenance of the experimental artifact
 
-## Three repositories, one specimen
+## Four repositories: one specimen, two copies, one study
 
-| Repository | Role | Visibility |
-| --- | --- | --- |
-| `idea-log` | The original. Frozen, sealed, never worked in by anyone. | Private until publication |
-| `idea-log-armA` | The copy the single general reviewer works against | Private until publication |
-| `idea-log-armB` | The copy the swarm works against | Private until publication |
-| `review-experiment-001` | The study: protocol, predictions, reports, findings, notebook | Public from the start |
+Three of them hold the code under test. The fourth holds the experiment and never contains a line of
+the subject application.
+
+| Repository | Role | Holds | Visibility |
+| --- | --- | --- | --- |
+| `idea-log` | **The specimen.** Frozen, sealed, never worked in by anyone. | The generated application at `v0-raw` | Private until publication |
+| `idea-log-armA` | Working copy for the single general reviewer | Identical tree, own history | Private until publication |
+| `idea-log-armB` | Working copy for the swarm | Identical tree, own history | Private until publication |
+| `review-experiment-001` | **The study.** Not code under test. | Protocol, specification, predictions, baseline output, raw reports, findings, notebook, this file | Public from the start |
+
+The separation between the first three and the fourth is what lets the build session be called clean:
+the coding agent worked in `idea-log` and had no path to `review-experiment-001`, where the
+specification and the reviewers' criteria live.
 
 The original is not a workspace. Nobody opens it, reviews in it, or fixes anything in it. Each arm
 gets a copy, and whatever happens to that copy is recorded in that copy's own git history.
