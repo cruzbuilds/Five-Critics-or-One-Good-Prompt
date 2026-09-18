@@ -1,0 +1,46 @@
+TOTALS
+  distinct defects, single reviewer : 41
+  distinct defects, swarm           : 38
+  union                             : 63
+  found by both                     : 16
+  only single                       : 25
+  only swarm                        : 22
+
+BY DOMAIN (distinct defects)
+  domain            single   swarm
+  accessibility          1       0
+  correctness           11       5
+  dependencies           2       1
+  docs                   4       5
+  infra                  6       7
+  performance            3       0
+  security              13       7
+  tests                  1      13
+
+STABILITY: defects found in all 3 runs of that arm
+  single : 18 of 41
+  swarm  : 21 of 38
+
+ONLY SINGLE, all 3 runs:
+  [security] bcrypt silently truncates passwords beyond 72 bytes
+  [correctness] Client fetch errors are not handled
+  [security] Origin and Content-Type not checked on state-changing routes
+  [security] No security headers
+  [correctness] Predictions and status can be rewritten after outcome is recorded
+  [security] Share links are indexable and never expire
+  [performance] Unbounded reads, no pagination, no size limits
+
+ONLY SWARM, all 3 runs:
+  [infra] No teardown for Postgres volume
+  [docs] No ADRs for key architecture decisions
+  [tests] Auth route status codes untested
+  [tests] Calibration function untested
+  [tests] DB CHECK constraints untested
+  [tests] Owner scoping untested across idea routes
+  [tests] Public share payload untested
+  [tests] Scoring functions untested
+  [tests] Session verification and proxy redirect untested
+  [tests] Share token lifecycle untested
+  [tests] Validation schemas untested
+  [docs] API routes undocumented
+  [docs] No known-limitations section in README

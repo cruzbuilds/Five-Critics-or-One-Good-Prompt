@@ -1,0 +1,800 @@
+{
+ "both": [
+  "account-enumeration",
+  "db-schema-drift-missing-checks-redundant-index",
+  "invalid-status-filter-ignored",
+  "jwt-secret-placeholder-accepted",
+  "jwt-verification-not-pinned",
+  "no-deployment-pipeline",
+  "no-rate-limiting-bcrypt-cpu-cost",
+  "no-session-revocation-account-lifecycle",
+  "no-tests",
+  "node-engines-version-mismatch",
+  "postgres-exposed-default-creds",
+  "readme-inaccuracies-gaps",
+  "register-race-condition-500",
+  "serialize-idea-overexposure",
+  "status-outcome-inconsistency-db",
+  "unused-duplicate-share-api-route"
+ ],
+ "onlyA": [
+  "accessibility-gaps",
+  "bcrypt-72-byte-truncation",
+  "build-allowlist-config-duplication",
+  "client-fetch-error-handling",
+  "cookie-not-host-prefixed",
+  "duplicate-db-query-share-page",
+  "get-current-user-loads-password-hash",
+  "getcurrentuser-called-every-render",
+  "hindsight-scale-meaning-not-shown",
+  "hydration-mismatch-share-control-dates",
+  "jwt-secret-missing-fails-late-silent-logout",
+  "nextfont-google-build-network-dependency",
+  "no-account-deletion-gdpr-compliance",
+  "no-csrf-origin-check",
+  "no-logging-monitoring",
+  "no-security-headers",
+  "predictions-editable-after-outcome",
+  "prisma-version-skew",
+  "raw-validation-error-messages-no-maxlength",
+  "share-links-no-noindex-no-expiry",
+  "toctou-ownership-check-then-update",
+  "unbounded-queries-no-pagination",
+  "unhandled-errors-no-error-pages",
+  "unused-boilerplate-assets",
+  "unverified-next16-proxy-layoutprops-conventions"
+ ],
+ "onlyB": [
+  "build-script-approval-config-drift",
+  "dependencies-choice-undocumented",
+  "docker-postgres-port-not-configurable",
+  "docker-restart-policy-and-tag-notes",
+  "docker-volume-no-teardown",
+  "no-adr-for-key-decisions",
+  "no-tests-auth-routes",
+  "no-tests-calibration",
+  "no-tests-db-constraints",
+  "no-tests-outcome-recording",
+  "no-tests-ownership-scoping",
+  "no-tests-partial-update-mass-assignment",
+  "no-tests-proxy-redirect",
+  "no-tests-public-share-payload",
+  "no-tests-scoring",
+  "no-tests-session-verification",
+  "no-tests-share-tokens",
+  "no-tests-validation",
+  "proxy-matcher-coverage-gap",
+  "readme-api-undocumented",
+  "readme-no-limitations-section",
+  "secure-cookie-breaks-plain-http"
+ ],
+ "ga": {
+  "jwt-secret-placeholder-accepted": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "high",
+   "title": "Placeholder JWT_SECRET passes validation"
+  },
+  "no-rate-limiting-bcrypt-cpu-cost": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "high",
+   "title": "No rate limiting or brute-force protection on login/register"
+  },
+  "no-deployment-pipeline": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "infra",
+   "sev": "medium",
+   "title": "No production deployment path"
+  },
+  "no-tests": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "tests",
+   "sev": "medium",
+   "title": "No tests, no test script, no CI"
+  },
+  "predictions-editable-after-outcome": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Predictions and status can be rewritten after outcome is recorded"
+  },
+  "no-session-revocation-account-lifecycle": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "medium",
+   "title": "Sessions cannot be revoked"
+  },
+  "no-security-headers": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "medium",
+   "title": "No security headers"
+  },
+  "register-race-condition-500": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Unhandled errors: registration race, missing-secret crash, silent logout"
+  },
+  "status-outcome-inconsistency-db": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Database integrity gaps around outcome/status/hindsight"
+  },
+  "unbounded-queries-no-pagination": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "performance",
+   "sev": "medium",
+   "title": "Unbounded reads, no pagination, no size limits"
+  },
+  "account-enumeration": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Account enumeration via register/login responses"
+  },
+  "bcrypt-72-byte-truncation": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "bcrypt silently truncates passwords beyond 72 bytes"
+  },
+  "no-csrf-origin-check": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Origin and Content-Type not checked on state-changing routes"
+  },
+  "jwt-verification-not-pinned": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "JWT verification is not pinned"
+  },
+  "share-links-no-noindex-no-expiry": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Share links are indexable and never expire"
+  },
+  "serialize-idea-overexposure": {
+   "runs": [
+    "A1",
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "serializeIdea returns the whole row"
+  },
+  "get-current-user-loads-password-hash": {
+   "runs": [
+    "A1",
+    "A2"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "getCurrentUser loads passwordHash on every request"
+  },
+  "client-fetch-error-handling": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Client fetch errors are not handled"
+  },
+  "invalid-status-filter-ignored": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Invalid status filter is silently ignored"
+  },
+  "postgres-exposed-default-creds": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "infra",
+   "sev": "low",
+   "title": "docker-compose exposes Postgres with default credentials"
+  },
+  "node-engines-version-mismatch": {
+   "runs": [
+    "A1",
+    "A2"
+   ],
+   "domain": "dependencies",
+   "sev": "low",
+   "title": "Runtime version and dependency hygiene"
+  },
+  "no-logging-monitoring": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "infra",
+   "sev": "low",
+   "title": "No logging or monitoring"
+  },
+  "accessibility-gaps": {
+   "runs": [
+    "A1",
+    "A2"
+   ],
+   "domain": "accessibility",
+   "sev": "low",
+   "title": "Post-login redirect loses destination and status/score UI lacks accessibility roles"
+  },
+  "unused-duplicate-share-api-route": {
+   "runs": [
+    "A1",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "informational",
+   "title": "Dead public API route duplicates share logic"
+  },
+  "duplicate-db-query-share-page": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "performance",
+   "sev": "informational",
+   "title": "Duplicate database query on the share page"
+  },
+  "getcurrentuser-called-every-render": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "performance",
+   "sev": "informational",
+   "title": "Every page hits the database via SiteHeader"
+  },
+  "db-schema-drift-missing-checks-redundant-index": {
+   "runs": [
+    "A1",
+    "A2",
+    "A3"
+   ],
+   "domain": "infra",
+   "sev": "informational",
+   "title": "Redundant database index"
+  },
+  "build-allowlist-config-duplication": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "infra",
+   "sev": "informational",
+   "title": "Build-script allowlist duplicated across config files"
+  },
+  "unused-boilerplate-assets": {
+   "runs": [
+    "A1",
+    "A2"
+   ],
+   "domain": "docs",
+   "sev": "informational",
+   "title": "Leftover create-next-app boilerplate assets"
+  },
+  "readme-inaccuracies-gaps": {
+   "runs": [
+    "A1",
+    "A3"
+   ],
+   "domain": "docs",
+   "sev": "informational",
+   "title": "README wording and missing sections"
+  },
+  "cookie-not-host-prefixed": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "security",
+   "sev": "informational",
+   "title": "Session cookie is not __Host- prefixed"
+  },
+  "unverified-next16-proxy-layoutprops-conventions": {
+   "runs": [
+    "A1"
+   ],
+   "domain": "docs",
+   "sev": "informational",
+   "title": "Unverified Next 16 conventions"
+  },
+  "unhandled-errors-no-error-pages": {
+   "runs": [
+    "A2"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "No error handling around database calls, and no error pages"
+  },
+  "jwt-secret-missing-fails-late-silent-logout": {
+   "runs": [
+    "A2",
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "verifySessionToken swallows secret misconfiguration"
+  },
+  "hindsight-scale-meaning-not-shown": {
+   "runs": [
+    "A2"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Hindsight forms don't show what the scales mean"
+  },
+  "nextfont-google-build-network-dependency": {
+   "runs": [
+    "A2"
+   ],
+   "domain": "infra",
+   "sev": "low",
+   "title": "next/font/google needs network access at build time"
+  },
+  "hydration-mismatch-share-control-dates": {
+   "runs": [
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Client-side hydration mismatches"
+  },
+  "toctou-ownership-check-then-update": {
+   "runs": [
+    "A3"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Ownership is checked in a separate read before an unscoped update"
+  },
+  "raw-validation-error-messages-no-maxlength": {
+   "runs": [
+    "A3"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Validation errors are returned raw and unhelpful; invalid status ignored"
+  },
+  "prisma-version-skew": {
+   "runs": [
+    "A3"
+   ],
+   "domain": "dependencies",
+   "sev": "informational",
+   "title": "Prisma client/CLI version skew and build-time font fetch"
+  },
+  "no-account-deletion-gdpr-compliance": {
+   "runs": [
+    "A3"
+   ],
+   "domain": "docs",
+   "sev": "informational",
+   "title": "Missing product and compliance features"
+  }
+ },
+ "gb": {
+  "jwt-secret-placeholder-accepted": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "security",
+   "sev": "high",
+   "title": "JWT secret placeholder accepted"
+  },
+  "no-tests": {
+   "runs": [
+    "B1",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "No test runner or test script"
+  },
+  "no-tests-scoring": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Scoring functions untested"
+  },
+  "no-tests-calibration": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Calibration function untested"
+  },
+  "no-tests-ownership-scoping": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Owner scoping untested across idea routes"
+  },
+  "no-tests-share-tokens": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Share token lifecycle untested"
+  },
+  "no-tests-public-share-payload": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Public share payload untested"
+  },
+  "no-tests-validation": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Validation schemas untested"
+  },
+  "no-tests-auth-routes": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Auth route status codes untested"
+  },
+  "no-tests-session-verification": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Session verification and proxy redirect untested"
+  },
+  "postgres-exposed-default-creds": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "medium",
+   "title": "Postgres exposed with default creds"
+  },
+  "docker-volume-no-teardown": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "medium",
+   "title": "No teardown for Postgres volume"
+  },
+  "no-deployment-pipeline": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "medium",
+   "title": "No production migration path"
+  },
+  "no-session-revocation-account-lifecycle": {
+   "runs": [
+    "B1",
+    "B2r"
+   ],
+   "domain": "security",
+   "sev": "medium",
+   "title": "No session revocation on logout"
+  },
+  "no-rate-limiting-bcrypt-cpu-cost": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "security",
+   "sev": "medium",
+   "title": "No login rate limiting"
+  },
+  "account-enumeration": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "security",
+   "sev": "medium",
+   "title": "Login timing reveals registered emails"
+  },
+  "readme-no-limitations-section": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "docs",
+   "sev": "medium",
+   "title": "No known-limitations section in README"
+  },
+  "readme-api-undocumented": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "docs",
+   "sev": "medium",
+   "title": "API routes undocumented"
+  },
+  "readme-inaccuracies-gaps": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "docs",
+   "sev": "medium",
+   "title": "README typo undercuts sharing feature"
+  },
+  "no-tests-db-constraints": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "medium",
+   "title": "DB CHECK constraints untested"
+  },
+  "invalid-status-filter-ignored": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Invalid status filter silently ignored, untested"
+  },
+  "no-tests-partial-update-mass-assignment": {
+   "runs": [
+    "B1"
+   ],
+   "domain": "tests",
+   "sev": "medium",
+   "title": "PATCH mass-assignment protection untested"
+  },
+  "serialize-idea-overexposure": {
+   "runs": [
+    "B1"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Owner serialization leaks userId"
+  },
+  "status-outcome-inconsistency-db": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Status can reach DONE without outcome data"
+  },
+  "secure-cookie-breaks-plain-http": {
+   "runs": [
+    "B1"
+   ],
+   "domain": "security",
+   "sev": "low",
+   "title": "Secure cookie flag may break plain-HTTP deploys"
+  },
+  "node-engines-version-mismatch": {
+   "runs": [
+    "B1",
+    "B3"
+   ],
+   "domain": "docs",
+   "sev": "low",
+   "title": "README Node version claim has no engines field"
+  },
+  "no-adr-for-key-decisions": {
+   "runs": [
+    "B1",
+    "B2r",
+    "B3"
+   ],
+   "domain": "docs",
+   "sev": "low",
+   "title": "No ADRs for key architecture decisions"
+  },
+  "docker-restart-policy-and-tag-notes": {
+   "runs": [
+    "B1",
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "informational",
+   "title": "Docker restart policy and image tag noted"
+  },
+  "db-schema-drift-missing-checks-redundant-index": {
+   "runs": [
+    "B1",
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "informational",
+   "title": "Score CHECK constraints only live in migration, not schema"
+  },
+  "no-tests-outcome-recording": {
+   "runs": [
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "high",
+   "title": "Outcome recording untested"
+  },
+  "docker-postgres-port-not-configurable": {
+   "runs": [
+    "B2r"
+   ],
+   "domain": "infra",
+   "sev": "medium",
+   "title": "Fixed Postgres port conflicts with local instance"
+  },
+  "no-tests-proxy-redirect": {
+   "runs": [
+    "B2r",
+    "B3"
+   ],
+   "domain": "tests",
+   "sev": "medium",
+   "title": "Proxy redirect and route matching untested"
+  },
+  "proxy-matcher-coverage-gap": {
+   "runs": [
+    "B2r"
+   ],
+   "domain": "correctness",
+   "sev": "low",
+   "title": "Proxy matcher only covers /ideas prefix"
+  },
+  "register-race-condition-500": {
+   "runs": [
+    "B3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Duplicate registration race condition causes 500"
+  },
+  "unused-duplicate-share-api-route": {
+   "runs": [
+    "B3"
+   ],
+   "domain": "correctness",
+   "sev": "medium",
+   "title": "Share page duplicates delta logic, untested"
+  },
+  "dependencies-choice-undocumented": {
+   "runs": [
+    "B3"
+   ],
+   "domain": "dependencies",
+   "sev": "informational",
+   "title": "Dependency choices undocumented"
+  },
+  "jwt-verification-not-pinned": {
+   "runs": [
+    "B3"
+   ],
+   "domain": "security",
+   "sev": "informational",
+   "title": "JWT verification not pinned to an algorithm"
+  },
+  "build-script-approval-config-drift": {
+   "runs": [
+    "B3"
+   ],
+   "domain": "infra",
+   "sev": "informational",
+   "title": "Build-script approval configured in two places"
+  }
+ }
+}

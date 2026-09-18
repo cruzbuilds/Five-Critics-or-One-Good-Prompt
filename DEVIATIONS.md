@@ -71,3 +71,47 @@ their own repository, so neither can write to anything that matters.
 **Results observed at the time of the change:** none.
 
 **Decided by:** me, before the first run. Caught while building the runner, not during analysis.
+
+---
+
+## 2026-09-18, D-004: the study becomes two conditions, because the first one denied every tool
+
+**What happened.** All six condition-1 runs completed with every shell call refused. `review.sh`
+passed `--allowedTools Read,Grep,Glob,Task`, which does not name `Bash`, so no agent in either arm
+could run a command. The agents said so in their Noted sections. The reports otherwise looked normal.
+
+**Whose fault.** Mine. I removed `Bash` from that flag on 2026-09-17 while narrowing permissions after
+a security finding, believing the command allow list in the settings file would scope it. That flag is
+the gate, not a filter. The allow list underneath was never consulted. A second bug compounded it: the
+allow list permitted `npm audit` but not `pnpm audit`, and the subject is a pnpm project.
+
+**Results observed at the time of the change:** yes. Six runs had completed and been compared. This is
+the first amendment in this study made with results already in view, and it is recorded as such.
+
+**Why it is not a rewrite of an inconvenient result.** Condition 1 is kept, in full, and reported as
+what it is: a fair comparison in which both arms were equally denied their tools. Nothing is deleted
+or re-run to replace it. What changes is that a second condition is added, with the fix applied to
+both arms equally.
+
+**What the study becomes.**
+
+|  | reading only | with tools |
+| --- | --- | --- |
+| single prompt | A1-A3, done | A1-A3-tools |
+| swarm | B1, B2r, B3, done | B1-B3-tools |
+
+That is a better design than the one registered, and it exists because of a defect. Tool access
+becomes the isolated variable, which is the question a reader most wants answered about specialized
+reviewers: whether the specialization pays off only when the specialists can use their instruments.
+
+**Risk this introduces, stated plainly.** Condition 2 is being run after seeing condition 1, by
+someone who now knows the swarm underperformed. The guards are that both arms get identical access,
+the arm A prompt does not change by a character, the subject commit does not change, and
+`scripts/preflight.sh` must pass before any condition-2 run counts. The preflight asks a live session
+to run one command and checks the output, so a silently-denied shell cannot happen twice.
+
+**Swarm version changes between conditions.** Condition 1 ran swarm `7461982`. Condition 2 runs
+`a18fba7`, which differs only in the two permission fixes. Both hashes are recorded per run in
+`reports/runs.csv`. A reader can object that the swarm under test is not identical across conditions;
+the answer is that the condition-1 version could not run tools by construction, so there was no way to
+hold it constant and change the variable.

@@ -1,0 +1,632 @@
+[
+ {
+  "title": "Hindsight forms don't show what the scales mean",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/components/outcome-form.tsx",
+  "line": "97-103",
+  "desc": "Cost and reversibility are inverted scales (5=cheap, 5=easy to undo) but the hint text only exists on the create form, not the hindsight forms.",
+  "fail": "A user re-scoring cost in hindsight can misread 5 as expensive, flipping the delta sign and corrupting calibration.",
+  "claim_id": "C01"
+ },
+ {
+  "title": "Public share payload untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/app/api/share/[token]/route.ts",
+  "line": "13-14,17-35",
+  "desc": "The unauthenticated read endpoint's valid-token, unknown-token, and revoked-token behavior, and its field allow-list, are untested.",
+  "fail": "A future edit could leak userId or shareToken in the public response without a test catching it.",
+  "claim_id": "C02"
+ },
+ {
+  "title": "Origin and Content-Type not checked on state-changing routes",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/app/api/auth/login/route.ts",
+  "line": "8",
+  "desc": "Mutating routes rely solely on SameSite=Lax; req.json() parses regardless of Content-Type and Origin is never checked.",
+  "fail": "A cross-site form can trigger login CSRF, logging a victim into an attacker-controlled account.",
+  "claim_id": "C03"
+ },
+ {
+  "title": "Auth route status codes untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/app/api/auth/register/route.ts",
+  "line": "19-25",
+  "desc": "The register duplicate-409/400 branches, login's two 401 branches, and the success cookie are untested.",
+  "fail": "",
+  "claim_id": "C04"
+ },
+ {
+  "title": "No logging or monitoring",
+  "domain": "infra",
+  "sev": "low",
+  "file": "src/lib/prisma.ts",
+  "line": "10",
+  "desc": "Only Prisma errors are logged; failed logins, registrations and 5xx responses are not recorded anywhere.",
+  "fail": "",
+  "claim_id": "C05"
+ },
+ {
+  "title": "Dead public API route duplicates share logic",
+  "domain": "correctness",
+  "sev": "informational",
+  "file": "src/app/api/share/[token]/route.ts",
+  "line": "",
+  "desc": "The page recomputes the delta inline instead of calling scoreDelta, and renders hindsight when outcome is set even if the h* scores are null; neither case is tested.",
+  "fail": "",
+  "claim_id": "C06"
+ },
+ {
+  "title": "Missing product and compliance features",
+  "domain": "docs",
+  "sev": "informational",
+  "file": "src/app",
+  "line": "",
+  "desc": "There is no account or data deletion/export, no terms or privacy policy, and no custom error.tsx, not-found.tsx or loading.tsx.",
+  "fail": "",
+  "claim_id": "C07"
+ },
+ {
+  "title": "Calibration function untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/lib/calibration.ts",
+  "line": "16-31",
+  "desc": "computeCalibration is untested, including the empty-input null branch and two fallback expressions.",
+  "fail": "",
+  "claim_id": "C08"
+ },
+ {
+  "title": "Predictions and status can be rewritten after outcome is recorded",
+  "domain": "correctness",
+  "sev": "medium",
+  "file": "src/lib/validation.ts",
+  "line": "30-38",
+  "desc": "PATCH accepts new prediction scores at any time, including after an outcome exists, undermining the app's core calibration comparison.",
+  "fail": "A user can edit the original predicted scores after seeing the result, so the calibration 'how wrong was I' metric reports whatever the user wants.",
+  "claim_id": "C09"
+ },
+ {
+  "title": "Duplicate database query on the share page",
+  "domain": "performance",
+  "sev": "informational",
+  "file": "src/app/s/[token]/page.tsx",
+  "line": "",
+  "desc": "The same findUnique query runs twice per request, once in generateMetadata and once in the page.",
+  "fail": "",
+  "claim_id": "C10"
+ },
+ {
+  "title": "Database integrity gaps around outcome/status/hindsight",
+  "domain": "correctness",
+  "sev": "medium",
+  "file": "prisma/schema.prisma",
+  "line": "41-47",
+  "desc": "The database allows outcome set with partial hindsight, hindsight scores while status is ACTIVE, and status DONE with no outcome, and the existing CHECK constraints live only in raw SQL invisible to schema.prisma.",
+  "fail": "A record with outcome removed can leave hindsightTotal null while the UI still renders a hindsight cell, and direct writes bypass the API's rules entirely.",
+  "claim_id": "C11"
+ },
+ {
+  "title": "No rate limiting or brute-force protection on login/register",
+  "domain": "security",
+  "sev": "high",
+  "file": "src/app/api/auth/login/route.ts",
+  "line": "7",
+  "desc": "There is no rate limiting or lockout on login or register, and both run bcrypt at cost 12 on unauthenticated requests, making them a cheap CPU-exhaustion target.",
+  "fail": "An attacker can run unlimited credential stuffing against login, and flooding register can saturate CPU and starve the app for all users.",
+  "claim_id": "C12"
+ },
+ {
+  "title": "docker-compose exposes Postgres with default credentials",
+  "domain": "infra",
+  "sev": "low",
+  "file": "docker-compose.yml",
+  "line": "5-10",
+  "desc": "Port 5432 is published on all interfaces with the credentials idealog/idealog, matching .env.example, with no healthcheck or pinned patch version.",
+  "fail": "On a server or shared network, the database is reachable with a publicly known password.",
+  "claim_id": "C13"
+ },
+ {
+  "title": "Client fetch errors are not handled",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/components/auth-form.tsx",
+  "line": "26",
+  "desc": "fetch rejections are uncaught across several forms, and delete/share/revoke failures are silently ignored.",
+  "fail": "A network error leaves the auth form stuck on 'Please wait...' forever, and a failed revoke looks successful.",
+  "claim_id": "C14"
+ },
+ {
+  "title": "No teardown for Postgres volume",
+  "domain": "infra",
+  "sev": "medium",
+  "file": "docker-compose.yml",
+  "line": "14",
+  "desc": "The idealog_pgdata volume has no teardown path, no db:down script, and the README doesn't mention docker compose down -v (also noted by docs-reviewer).",
+  "fail": "",
+  "claim_id": "C15"
+ },
+ {
+  "title": "API routes undocumented",
+  "domain": "docs",
+  "sev": "medium",
+  "file": "README.md",
+  "line": "46-57",
+  "desc": "The routes table covers pages only; the 10 API handlers, including public GET /api/share/[token] and the regenerate body option, are undocumented.",
+  "fail": "",
+  "claim_id": "C16"
+ },
+ {
+  "title": "Build-script allowlist duplicated across config files",
+  "domain": "infra",
+  "sev": "informational",
+  "file": "package.json",
+  "line": "",
+  "desc": "Build-script allowlists are duplicated in both package.json and pnpm-workspace.yaml, and sharp is ignored.",
+  "fail": "",
+  "claim_id": "C17"
+ },
+ {
+  "title": "No error handling around database calls, and no error pages",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/app route handlers",
+  "line": "",
+  "desc": "Prisma calls are not wrapped in try/catch, and there is no error.tsx, global-error.tsx or not-found.tsx.",
+  "fail": "A database outage or unexpected throw surfaces as an opaque 500 with nothing recorded about the failure.",
+  "claim_id": "C18"
+ },
+ {
+  "title": "README wording and missing sections",
+  "domain": "docs",
+  "sev": "informational",
+  "file": "README.md",
+  "line": "",
+  "desc": "The README has a wording issue ('unshareable/unguessable'), says bcrypt when the code uses bcryptjs, an unconfirmed Node version claim, and documents no production deployment, secret generation or backup procedure.",
+  "fail": "",
+  "claim_id": "C19"
+ },
+ {
+  "title": "Placeholder JWT_SECRET passes validation",
+  "domain": "security",
+  "sev": "high",
+  "file": ".env.example",
+  "line": "2",
+  "desc": "JWT_SECRET is documented as 'fill in ... (or keep the defaults)', and the 33-character .env.example placeholder passes the >=16 length check, so an app run on defaults signs sessions with a publicly known key (security-reviewer flagged the code side).",
+  "fail": "If production runs with the example secret, anyone who knows a valid user id can forge an HS256 session token and log in as that user.",
+  "claim_id": "C20"
+ },
+ {
+  "title": "Sessions cannot be revoked",
+  "domain": "security",
+  "sev": "medium",
+  "file": "src/lib/session.ts",
+  "line": "24-27",
+  "desc": "Sessions are stateless 30-day JWTs with logout only clearing the browser cookie, and there is no reset, change-password or email verification flow.",
+  "fail": "A stolen cookie or token stays valid for up to 30 days after the user logs out.",
+  "claim_id": "C21"
+ },
+ {
+  "title": "Session cookie is not __Host- prefixed",
+  "domain": "security",
+  "sev": "informational",
+  "file": "src/lib/session.ts",
+  "line": "",
+  "desc": "The session cookie name lacks the __Host- prefix hardening.",
+  "fail": "",
+  "claim_id": "C22"
+ },
+ {
+  "title": "Docker restart policy and image tag noted",
+  "domain": "infra",
+  "sev": "informational",
+  "file": "docker-compose.yml",
+  "line": "",
+  "desc": "restart: unless-stopped brings the dev database back after every reboot, and the postgres:16-alpine tag floats across minor versions, which is acceptable for local dev.",
+  "fail": "",
+  "claim_id": "C23"
+ },
+ {
+  "title": "Leftover create-next-app boilerplate assets",
+  "domain": "docs",
+  "sev": "informational",
+  "file": "public/*.svg",
+  "line": "",
+  "desc": "The default create-next-app SVG assets and favicon are unused, and the README has a wording typo, contradicts the Node version finding, and has no production section.",
+  "fail": "",
+  "claim_id": "C24"
+ },
+ {
+  "title": "No tests, no test script, no CI",
+  "domain": "tests",
+  "sev": "medium",
+  "file": "package.json",
+  "line": "",
+  "desc": "There is no test script, test files or CI pipeline covering authorization, validation, scoring or share-token lifecycle.",
+  "fail": "A future refactor that drops userId from a where clause ships silently and exposes another user's ideas.",
+  "claim_id": "C25"
+ },
+ {
+  "title": "Owner scoping untested across idea routes",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/app/api/ideas/[id]/route.ts",
+  "line": "14,25,50",
+  "desc": "Owner scoping via findFirst({id,userId}), the only thing keeping ideas private, is untested across GET, PATCH, DELETE, outcome, share and unshare.",
+  "fail": "Dropping the userId filter would break nothing visible in current tests, so a regression exposing other users' ideas could ship undetected.",
+  "claim_id": "C26"
+ },
+ {
+  "title": "Redundant database index",
+  "domain": "infra",
+  "sev": "informational",
+  "file": "prisma/schema.prisma",
+  "line": "",
+  "desc": "The userId index is redundant with the composite userId+status index, and the CHECK constraints added in a raw migration are not represented in schema.prisma, so a schema-only rebuild would silently drop them.",
+  "fail": "",
+  "claim_id": "C27"
+ },
+ {
+  "title": "Unverified Next 16 conventions",
+  "domain": "docs",
+  "sev": "informational",
+  "file": "src/proxy.ts",
+  "line": "",
+  "desc": "The proxy export, config.matcher and the global LayoutProps<\"/\"> type could not be verified against Next 16 docs since node_modules is absent, and AGENTS.md warns this Next version differs from prior knowledge.",
+  "fail": "",
+  "claim_id": "C28"
+ },
+ {
+  "title": "Account enumeration via register/login responses",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/app/api/auth/register/route.ts",
+  "line": "20-25",
+  "desc": "An unknown email returns 401 immediately while a known email runs bcrypt first, revealing registered emails by timing; register also returns an explicit 409 for existing emails.",
+  "fail": "Anyone can test whether a given email has an account by observing the response or its timing.",
+  "claim_id": "C29"
+ },
+ {
+  "title": "No production deployment path",
+  "domain": "infra",
+  "sev": "medium",
+  "file": "package.json",
+  "line": "6-14",
+  "desc": "The production path is undefined: db:migrate is prisma migrate dev, so pnpm build && pnpm start against a fresh DB has no tables, and env vars/secure-cookie behavior for production aren't documented.",
+  "fail": "Someone following the README on a server either runs migrate dev against production or has no documented way to apply migrations.",
+  "claim_id": "C30"
+ },
+ {
+  "title": "Proxy matcher only covers /ideas prefix",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/proxy.ts",
+  "line": "5-6",
+  "desc": "The proxy matcher is /ideas/:path*, so only the /ideas prefix is covered, and whether that gives full auth coverage was handed to security-reviewer, whose report doesn't address proxy.ts.",
+  "fail": "",
+  "claim_id": "C31"
+ },
+ {
+  "title": "No known-limitations section in README",
+  "domain": "docs",
+  "sev": "medium",
+  "file": "README.md",
+  "line": "1-66",
+  "desc": "There is no production or limitations section; it should note db:migrate is dev-only and list absent login rate limiting, password reset, email verification, session revocation, and tests.",
+  "fail": "",
+  "claim_id": "C32"
+ },
+ {
+  "title": "Unbounded reads, no pagination, no size limits",
+  "domain": "performance",
+  "sev": "medium",
+  "file": "src/app/api/ideas/route.ts",
+  "line": "15-21",
+  "desc": "The list endpoint loads every idea with no pagination, descriptions can be 5,000 characters, and request bodies have no size limit before Zod validation.",
+  "fail": "An account that creates thousands of ideas makes its dashboard slow and heavy for both server and browser.",
+  "claim_id": "C33"
+ },
+ {
+  "title": "Share links are indexable and never expire",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/app/s/[token]/page.tsx",
+  "line": "12-22",
+  "desc": "The share page has no robots or Referrer-Policy metadata and queries the DB twice per request, and /api/share/[token] duplicates the same logic unused anywhere.",
+  "fail": "A publicly posted link can be indexed by search engines and stays live until manually revoked.",
+  "claim_id": "C34"
+ },
+ {
+  "title": "No security headers",
+  "domain": "security",
+  "sev": "medium",
+  "file": "next.config.ts",
+  "line": "3-5",
+  "desc": "The Next config is empty, with no CSP, frame-ancestors, HSTS, Referrer-Policy or X-Content-Type-Options.",
+  "fail": "Another site can frame /ideas/[id] and clickjack the delete and share-link buttons.",
+  "claim_id": "C35"
+ },
+ {
+  "title": "Validation errors are returned raw and unhelpful; invalid status ignored",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/app/api/auth/login/route.ts",
+  "line": "12",
+  "desc": "Raw Zod messages omit the field name and form inputs carry no maxLength, and GET /api/ideas?status=bogus is silently ignored instead of returning 400.",
+  "fail": "",
+  "claim_id": "C36"
+ },
+ {
+  "title": "Scoring functions untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/lib/scoring.ts",
+  "line": "23-47",
+  "desc": "totalScore, hindsightTotal and scoreDelta have no tests despite driving ranking and calibration.",
+  "fail": "A bug in these functions could silently produce wrong rankings or calibration numbers.",
+  "claim_id": "C37"
+ },
+ {
+  "title": "Every page hits the database via SiteHeader",
+  "domain": "performance",
+  "sev": "informational",
+  "file": "src/components/SiteHeader",
+  "line": "",
+  "desc": "SiteHeader in the root layout calls getCurrentUser() on every page render, including the public share page.",
+  "fail": "",
+  "claim_id": "C38"
+ },
+ {
+  "title": "serializeIdea returns the whole row",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/lib/serialize-idea.ts",
+  "line": "7",
+  "desc": "serializeIdea sends the unneeded userId to the client, the login redirect drops the original URL, and the JWT carries an email claim nothing reads.",
+  "fail": "",
+  "claim_id": "C39"
+ },
+ {
+  "title": "Prisma client/CLI version skew and build-time font fetch",
+  "domain": "dependencies",
+  "sev": "informational",
+  "file": "package.json",
+  "line": "16",
+  "desc": "@prisma/client is a caret range while prisma is pinned exactly, risking version skew on a re-resolve, and next/font/google fetches fonts at build time.",
+  "fail": "",
+  "claim_id": "C40"
+ },
+ {
+  "title": "Outcome recording untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/app/api/ideas/[id]/outcome/route.ts",
+  "line": "26",
+  "desc": "Recording an outcome and hindsight scores, the core feature, has no test.",
+  "fail": "",
+  "claim_id": "C41"
+ },
+ {
+  "title": "getCurrentUser loads passwordHash on every request",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/lib/session.ts",
+  "line": "40",
+  "desc": "The user lookup has no select clause, so it returns passwordHash on every page render via the layout header.",
+  "fail": "A future response that serializes the user object directly would leak the password hash.",
+  "claim_id": "C42"
+ },
+ {
+  "title": "Share token lifecycle untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/app/api/ideas/[id]/share/route.ts",
+  "line": "19-22,41-44",
+  "desc": "Token reuse on repeat POST, rotation on regenerate, DELETE clearing the token, and the malformed-body fallback are all untested.",
+  "fail": "A broken revocation or rotation could leave an old share token valid without any test catching it.",
+  "claim_id": "C43"
+ },
+ {
+  "title": "JWT verification is not pinned",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/lib/auth.ts",
+  "line": "44",
+  "desc": "jwtVerify pins no algorithms, issuer or audience, and the email claim is embedded in the token but never revalidated against the database.",
+  "fail": "",
+  "claim_id": "C44"
+ },
+ {
+  "title": "Dependency choices undocumented",
+  "domain": "dependencies",
+  "sev": "informational",
+  "file": "",
+  "line": "",
+  "desc": "The dependencies (prisma client, bcryptjs, jose, nanoid, next, prisma, react, react-dom, zod) have no justification recorded anywhere except the Prisma 6.x pin note in the README.",
+  "fail": "",
+  "claim_id": "C45"
+ },
+ {
+  "title": "Fixed Postgres port conflicts with local instance",
+  "domain": "infra",
+  "sev": "medium",
+  "file": "docker-compose.yml",
+  "line": "9-10",
+  "desc": "The fixed host port fails to start if a local Postgres is already running.",
+  "fail": "",
+  "claim_id": "C46"
+ },
+ {
+  "title": "Post-login redirect loses destination and status/score UI lacks accessibility roles",
+  "domain": "accessibility",
+  "sev": "low",
+  "file": "src/proxy.ts",
+  "line": "14-16",
+  "desc": "The login redirect drops the original URL, and status tabs and the score radiogroup have no ARIA roles or arrow-key handling, and error messages have no role=alert.",
+  "fail": "",
+  "claim_id": "C47"
+ },
+ {
+  "title": "Client-side hydration mismatches",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/components/share-control.tsx",
+  "line": "18-23",
+  "desc": "ShareControl branches on typeof window during render so server and client render different origins, and toLocaleDateString can differ between server and client locale/timezone.",
+  "fail": "This can produce React hydration warnings and a flash of a wrong value, though it was not run to confirm.",
+  "claim_id": "C48"
+ },
+ {
+  "title": "verifySessionToken swallows secret misconfiguration",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/lib/auth.ts",
+  "line": "44-51",
+  "desc": "The secret is validated lazily on first sign/verify rather than at startup, and register creates the user row before calling setSessionCookie.",
+  "fail": "/ideas silently redirects to /login for everyone while login itself 500s, making the root cause hard to find.",
+  "claim_id": "C49"
+ },
+ {
+  "title": "Secure cookie flag may break plain-HTTP deploys",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/lib/session.ts",
+  "line": "17",
+  "desc": "The session cookie is secure whenever NODE_ENV=production, which may break sessions when pnpm start runs over plain HTTP, notably in Safari (security-reviewer only confirmed the flags are correct).",
+  "fail": "Logins may silently fail to persist when the app is run in production mode without HTTPS.",
+  "claim_id": "C50"
+ },
+ {
+  "title": "Proxy redirect and route matching untested",
+  "domain": "tests",
+  "sev": "medium",
+  "file": "src/proxy.ts",
+  "line": "6",
+  "desc": "The redirect-to-login branch and the pass-through branch of the proxy are untested.",
+  "fail": "",
+  "claim_id": "C51"
+ },
+ {
+  "title": "Validation schemas untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/lib/validation.ts",
+  "line": "3-47",
+  "desc": "The 1-5 ranges, trim/lowercase rules and outcomeSchema restriction are untested despite the README's claim of Zod enforcement.",
+  "fail": "",
+  "claim_id": "C52"
+ },
+ {
+  "title": "No ADRs for key architecture decisions",
+  "domain": "docs",
+  "sev": "low",
+  "file": "docs/decisions/",
+  "line": "",
+  "desc": "No ADRs exist for Postgres via Prisma, the hand-rolled JWT session with jose and bcryptjs, public share-by-token links, or scores enforced in both Zod and the database (docs-reviewer only partly covered it, asking for an ADR just for the session model).",
+  "fail": "",
+  "claim_id": "C53"
+ },
+ {
+  "title": "PATCH mass-assignment protection untested",
+  "domain": "tests",
+  "sev": "medium",
+  "file": "src/app/api/ideas/[id]/route.ts",
+  "line": "37-40",
+  "desc": "PATCH writes parsed.data straight into the update, and nothing tests that client-supplied userId or shareToken is stripped by Zod.",
+  "fail": "If Zod's key-stripping behavior ever changed, a client could overwrite userId or shareToken with no test catching it.",
+  "claim_id": "C54"
+ },
+ {
+  "title": "Runtime version and dependency hygiene",
+  "domain": "dependencies",
+  "sev": "low",
+  "file": "README.md",
+  "line": "23",
+  "desc": "The README says Node 20+, which is past end of life, there is no engines field or .nvmrc, and @prisma/client is a caret range while prisma is pinned exactly.",
+  "fail": "",
+  "claim_id": "C55"
+ },
+ {
+  "title": "bcrypt silently truncates passwords beyond 72 bytes",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/lib/validation.ts",
+  "line": "6",
+  "desc": "The schema allows 200-character passwords but bcrypt ignores everything past byte 72, and the only rule is an 8-character minimum.",
+  "fail": "Two different long passwords sharing the same 72-byte prefix are treated as equivalent.",
+  "claim_id": "C56"
+ },
+ {
+  "title": "Unhandled errors: registration race, missing-secret crash, silent logout",
+  "domain": "correctness",
+  "sev": "medium",
+  "file": "src/app/api/auth/register/route.ts",
+  "line": "19-30",
+  "desc": "No Prisma call is wrapped in try/catch; a concurrent registration throws an unhandled unique-violation, a missing JWT_SECRET makes setSessionCookie throw after the user is created, and verifySessionToken swallows that same error so every request just looks logged out.",
+  "fail": "Two concurrent registrations for one email make the second request crash with a raw 500 instead of a 409, and a missing secret leaves an orphaned user account with no visible error.",
+  "claim_id": "C57"
+ },
+ {
+  "title": "Ownership is checked in a separate read before an unscoped update",
+  "domain": "security",
+  "sev": "low",
+  "file": "src/app/api/ideas/[id]/route.ts",
+  "line": "25-40",
+  "desc": "Routes call findFirst({id,userId}) and then update({where:{id}}) without repeating the ownership filter on the write.",
+  "fail": "A concurrent delete between the check and the update makes the write throw an unhandled P2025/500; a future refactor dropping the pre-check would become an IDOR.",
+  "claim_id": "C58"
+ },
+ {
+  "title": "DB CHECK constraints untested",
+  "domain": "tests",
+  "sev": "medium",
+  "file": "prisma/migrations/20260917213700_score_checks/migration.sql",
+  "line": "2-10",
+  "desc": "The DB-level CHECK constraints, half of the README's 'enforced in both places' claim, have no test.",
+  "fail": "",
+  "claim_id": "C59"
+ },
+ {
+  "title": "next/font/google needs network access at build time",
+  "domain": "infra",
+  "sev": "low",
+  "file": "src/app/layout.tsx",
+  "line": "2-14",
+  "desc": "Geist fonts are fetched from Google during the build.",
+  "fail": "The build may fail in offline or restricted CI, though this could not be confirmed.",
+  "claim_id": "C60"
+ },
+ {
+  "title": "Invalid status filter is silently ignored",
+  "domain": "correctness",
+  "sev": "low",
+  "file": "src/app/api/ideas/route.ts",
+  "line": "13-19",
+  "desc": "An invalid ?status= value is silently ignored and returns all ideas instead of erroring, and this plus the ranking sort are untested.",
+  "fail": "",
+  "claim_id": "C61"
+ },
+ {
+  "title": "Build-script approval configured in two places",
+  "domain": "infra",
+  "sev": "informational",
+  "file": "pnpm-workspace.yaml",
+  "line": "1-3",
+  "desc": "Build-script approval is configured in both pnpm-workspace.yaml and package.json, and the two can drift.",
+  "fail": "",
+  "claim_id": "C62"
+ },
+ {
+  "title": "Session verification and proxy redirect untested",
+  "domain": "tests",
+  "sev": "high",
+  "file": "src/lib/auth.ts",
+  "line": "36-52",
+  "desc": "verifySessionToken returning null on tampered/expired/wrong-secret tokens, and getSecretKey throwing on a missing or short secret, are untested.",
+  "fail": "A tampered, expired, or malformed token, or an unauthenticated request, could bypass the /ideas gate without a test catching a regression.",
+  "claim_id": "C63"
+ }
+]
