@@ -1,1 +1,3 @@
 run_id,condition,started_at,ended_at,wall_clock_s,model,input_tokens,output_tokens,est_cost_usd,tool_calls,failed_tool_calls,completion_status,notes
+A1,single,2026-09-18T22:10:51Z,2026-09-18T22:14:52Z,241,2.1.275 (Claude Code),,,,,,completed,exit=0
+B1,swarm,2026-09-18T22:10:51Z,2026-09-18T22:14:52Z,241,2.1.275 (Claude Code),,,,,,completed,exit=2 swarm=7461982

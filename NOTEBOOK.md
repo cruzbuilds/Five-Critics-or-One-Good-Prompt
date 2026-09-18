@@ -159,3 +159,49 @@ specialization argument gets a lot weaker, and that is the point of writing it d
 Frozen at `v0-raw`, `b38c5b0dc51206bda7cd97fc27d0d252d6fd6a02`. Baseline recorded. Predictions sealed
 and public. Two working copies forked from the tag, all four repositories at the same hash. Nothing
 reviewed yet.
+
+---
+
+## 2026-09-18 - the reviews
+
+### The swarm refused to review nothing, and that was yesterday's fix
+
+Second pair. I ran `review.sh` without the range argument, which meant the change was empty: one root
+commit, already on main, nothing uncommitted. The orchestrator spawned no agents. It came back in 19
+seconds with this:
+
+> The review contract says reviewers must review a diff, not the working tree, because reviewing the
+> wrong thing looks just like a real review. If I ran the agents now, they would either report PASS on
+> nothing or fall back to reviewing the whole tree.
+
+Then it asked me which of three things I meant, and offered the empty-tree range as the option it
+thought I wanted.
+
+That sentence is the rule I added to `shared/review-contract.md` the previous afternoon, quoted back
+at me by a system following it. AS-6 existed because two reviewers had no shell, could not run git,
+and reviewed the working tree instead of the change while their reports read completely normally. The
+fix was a permission change plus a written rule saying what to do when git is unavailable.
+
+The first time that rule met a real ambiguous situation, it stopped the run.
+
+I am keeping `B2.md` in the record as an aborted run. It produced no findings and it is one of the more
+useful things the swarm did today, because the alternative was a confident review of the wrong thing
+and I would have had no way to tell from the output.
+
+Worth being honest about the other half: the reason the change was empty is that I ran the command
+without the range, which was my error, and the runner I had written specifically to avoid that error
+was sitting right there. I skipped it because I wanted to move faster.
+
+### Arm A is stable across runs
+
+A1 produced 24 findings, A2 produced 26, and the overlap is heavy. Same top two, the placeholder
+`JWT_SECRET` that passes validation and the total absence of rate limiting. Same finding that
+predictions can be edited after hindsight is recorded, which defeats the calibration feature. Same
+missing tests, same missing security headers, same Postgres exposed with default credentials, same
+bcrypt 72-byte truncation, same CSRF gap.
+
+A2 found two things A1 missed: `nanoid@6` requires Node 22 while the README, the types and the package
+all target Node 20, and `next/font/google` needs network access at build time.
+
+Stability across repeated runs of the same reviewer is something almost nobody publishes, and on two
+runs it looks high. That is worth measuring properly once all six exist.
