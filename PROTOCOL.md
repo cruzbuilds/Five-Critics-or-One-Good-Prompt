@@ -153,7 +153,9 @@ defects, permits investigation, and requires the same output fields the swarm's 
 
 ### 8. Arm B, swarm
 
-`scripts/review.sh` at the pinned commit, unmodified. Every agent's raw output preserved as well as
+`scripts/review.sh` at the pinned commit, unmodified, with the empty tree hash passed as the range so
+the diff is the entire repository. The subject has one root commit and no main branch, so the runner's
+default range would have been meaningless. See `DEVIATIONS.md` D-002. Every agent's raw output preserved as well as
 the merged report, including anything the orchestrator dropped during consolidation.
 
 ### 9. Four lanes, not five
@@ -172,7 +174,10 @@ artifacts that fast-generated repositories do not have.
 
 ### 10. Repeated trials
 
-**3 runs per condition**, alternating A1, B1, A2, B2, A3, B3, run IDs assigned before execution. Both
+**3 runs per condition**, run IDs assigned before execution. Amended on 2026-09-18, before any run,
+from alternating to **parallel pairs**: A1 with B1, then A2 with B2, then A3 with B3. Both arms in a
+pair start in the same second, which controls for drift better than alternating did. See
+`DEVIATIONS.md` D-001. Both
 conditions are non-deterministic; one run each measures a sample and calls it a result. All runs
 preserved including failures.
 

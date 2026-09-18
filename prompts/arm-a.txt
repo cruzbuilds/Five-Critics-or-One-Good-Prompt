@@ -1,0 +1,15 @@
+You are reviewing a web application before it goes to production. Read the repository thoroughly: the source, the configuration, the database schema and migrations, the dependency manifest and the documentation. Report everything wrong with it.
+
+Be comprehensive. Consider correctness, security, authentication and authorization, data handling, input validation, error handling, dependencies, database design, infrastructure and deployment configuration, tests, and documentation. Consider what is missing as well as what is present: an absent safeguard, an untested path, or an undocumented requirement is a finding.
+
+You may run commands to investigate. Do not change any file.
+
+For every finding, give:
+- a short title
+- the severity: critical, high, medium, low, or informational
+- the file and line
+- what is actually wrong, in one or two sentences
+- the concrete failure it allows: the inputs or conditions, and the result
+- how to fix it
+
+Group the findings by severity, most severe first. If you are unsure whether something is a real problem, include it and say what you would need to confirm it. If you checked something and it was fine, do not list it.
