@@ -4,7 +4,9 @@
 # Identical to condition 1 except that both arms can run commands. That is the only variable that
 # changes between the two conditions, which is what makes the comparison mean anything.
 #
-#   scripts/run-pair-tools.sh 1     writes reports/A1-tools.md and reports/B1-tools.md
+#   scripts/run-pair-tools.sh 1     writes reports/A1.2.md and reports/B1.2.md
+#
+# Naming: A1.2 means arm A, run 1, condition 2. Condition 1 files stay A1.md, B1.md.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 EXP="$PWD"
@@ -17,7 +19,7 @@ FLAGS="--allowedTools Read,Grep,Glob,Bash,Task --max-turns 60"
 
 ./scripts/preflight.sh >/dev/null 2>&1 || { echo "preflight failed. Run scripts/preflight.sh and fix it first." >&2; exit 3; }
 
-for f in "$EXP/reports/A$n-tools.md" "$EXP/reports/B$n-tools.md"; do
+for f in "$EXP/reports/A$n.2.md" "$EXP/reports/B$n.2.md"; do
   [ -e "$f" ] && { echo "$f exists. Raw reports are never overwritten." >&2; exit 3; }
 done
 a_hash="$(git -C "$ARM_A_REPO" rev-parse HEAD)"; b_hash="$(git -C "$ARM_B_REPO" rev-parse HEAD)"
@@ -35,14 +37,14 @@ run_arm_a() {
 }
 
 a_start="$(date -u +%FT%TZ)"; t0=$(date +%s)
-run_arm_a > "$EXP/reports/A$n-tools.md" 2>&1 & a_pid=$!
-( cd "$SWARM" && CLAUDE_FLAGS="$FLAGS" ./scripts/review.sh "$ARM_B_REPO" "$EMPTY_TREE..HEAD" ) > "$EXP/reports/B$n-tools.md" 2>&1 & b_pid=$!
+run_arm_a > "$EXP/reports/A$n.2.md" 2>&1 & a_pid=$!
+( cd "$SWARM" && CLAUDE_FLAGS="$FLAGS" ./scripts/review.sh "$ARM_B_REPO" "$EMPTY_TREE..HEAD" ) > "$EXP/reports/B$n.2.md" 2>&1 & b_pid=$!
 wait $a_pid; a_rc=$?; a_secs=$(( $(date +%s) - t0 ))
 wait $b_pid; b_rc=$?; b_secs=$(( $(date +%s) - t0 ))
 end="$(date -u +%FT%TZ)"
 
-printf 'A%s-tools,single-tools,%s,%s,%s,sonnet,,,,,,completed,exit=%s\n' "$n" "$a_start" "$end" "$a_secs" "$a_rc" >> "$EXP/reports/runs.csv"
-printf 'B%s-tools,swarm-tools,%s,%s,%s,sonnet,,,,,,completed,exit=%s swarm=%s\n' "$n" "$a_start" "$end" "$b_secs" "$b_rc" "$swarm_hash" >> "$EXP/reports/runs.csv"
-echo "A$n-tools ${a_secs}s exit=$a_rc | B$n-tools ${b_secs}s exit=$b_rc"
+printf 'A%s.2,single-tools,%s,%s,%s,sonnet,,,,,,completed,exit=%s\n' "$n" "$a_start" "$end" "$a_secs" "$a_rc" >> "$EXP/reports/runs.csv"
+printf 'B%s.2,swarm-tools,%s,%s,%s,sonnet,,,,,,completed,exit=%s swarm=%s\n' "$n" "$a_start" "$end" "$b_secs" "$b_rc" "$swarm_hash" >> "$EXP/reports/runs.csv"
+echo "A$n.2 ${a_secs}s exit=$a_rc | B$n.2 ${b_secs}s exit=$b_rc"
 echo
 echo "Check both reports mention running a command. If they still say tools were denied, stop and tell Claude."
