@@ -15,7 +15,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 base="${1:-HEAD}"
-guarded="findings reports"
+guarded="findings reports experiment-002/HYPOTHESES.md experiment-002/PROTOCOL.md experiment-002/SUBJECTS.md experiment-002/DEVIATIONS.md experiment-002/findings experiment-002/reports"
 fail=0
 
 red()   { printf '\033[31m%s\033[0m\n' "$1"; }

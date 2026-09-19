@@ -100,6 +100,13 @@ The full accounting, including every number's provenance and every place I was w
 analysis, is [`ANALYSIS.md`](ANALYSIS.md), sections 1 through 13. Section 13 is the closing
 interpretation.
 
+## Experiment 002, sealed and not started
+
+The V2 architecture that came out of this experiment is now the baseline for the next one:
+V2 one-pass review against a bounded agentic-investigation version of the same reviewers. The
+hypotheses and protocol are sealed in [`experiment-002/`](experiment-002/) before any run, the same
+way `PREDICTIONS.md` was sealed here. Nothing has run.
+
 ## What comes next, and has not happened
 
 Experiment 001 changed the architecture. The swarm as built rejects a general reviewer on purpose
