@@ -161,3 +161,10 @@ after all three runs exist, and its raw wording is preserved as written. Nothing
 to fit C. Where a C claim matches an existing A/B claim, it inherits the existing verdict; the
 existing verdict is not revisited. New claims get new verdicts by the same three-value rule, with the
 `already prevented` flag, and go into the append-only evidence files.
+
+**D-005 addendum, after the runs.** The three C runs were launched in parallel from three terminals
+rather than one after another, the same way the A/B pairs were (D-001). Each had its own session and
+its own scratch clone. The harness reported a seven-day rate-limit event with overage in use on two
+of the three streams; all three completed with exit 0 and a result event. Post-processing (stream to
+text, `runs.csv` row) ran on the Mac as written. Raw reports and streams were committed before any
+extraction began (`3cb5f73`).

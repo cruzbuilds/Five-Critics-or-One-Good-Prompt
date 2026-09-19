@@ -1,0 +1,18 @@
+[
+ {
+  "claim_id": "C78",
+  "code_matches": "yes",
+  "evidence": "src/app/s/[token]/page.tsx:72 `{idea.outcome && (` ... :78 `<p className=\"mt-3 whitespace-pre-wrap text-sm\">{idea.outcome}</p>`; :82-88 renders each hindsight score. src/components/share-control.tsx:60 `Not shared. Anyone with the link can view this idea without an account.` No text on the share control or the share page distinguishes prediction from outcome/hindsight. src/app/api/share/[token]/route.ts:16-35 selects the same fields.",
+  "already_prevented": "no",
+  "verifiable_by": "code-read",
+  "note": "First raised by arm C (C2). Real as described. Whether it is a defect is a product-wording call: 'this idea' can reasonably include its outcome. Recorded as informational; strict TP under the rule because the code matches and nothing prevents it."
+ },
+ {
+  "claim_id": "C79",
+  "code_matches": "yes",
+  "evidence": "src/lib/validation.ts:30-38 `ideaUpdateSchema` has every field `.optional()` and no `.refine`, so `{}` parses. src/app/api/ideas/[id]/route.ts:29 `safeParse(body)` succeeds; :37-39 `prisma.idea.update({ ... data: parsed.data })` runs with `data: {}` and returns 200 with the unchanged row.",
+  "already_prevented": "no",
+  "verifiable_by": "code-read",
+  "note": "First raised by arm C (C3), as one clause inside its calibration item. Harmless no-op; informational."
+ }
+]

@@ -460,3 +460,283 @@ never used. Do not add the correctness agent yet; measure the gap it would fill 
 
 Every number above can be regenerated from the files in `findings/` with the scripts in the session
 record. Verdicts are open. If one is wrong, the correction goes in `findings/corrections.csv`.
+
+---
+
+# 12. Arm C: the goal without the map
+
+**Added 2026-09-19, after the A/B results above were observed and analysed. Exploratory follow-up
+evidence. Not part of the preregistered comparison. No prediction in `PREDICTIONS.md` is about it,
+none was added, and no A/B verdict was revisited. See `DEVIATIONS.md` D-005.**
+
+## 12.1 What ran
+
+The whole prompt, from `prompts/arm-c.txt`:
+
+> Review this repository as if it were about to go into production. Find anything you think should
+> be fixed or investigated before it ships.
+
+Three runs, launched in parallel from three terminals, each in a fresh scratch clone of the sealed
+`idea-log` at `b38c5b0`, same `.claude/settings.json` and flags as the A*.2 and B*.2 runs, one
+message, no follow-up. Model `claude-sonnet-5` as reported by the harness in every run.
+
+| Run | Wall | Tool calls | Failed | Output tokens | Cost | Report words |
+| --- | --- | --- | --- | --- | --- | --- |
+| C1 | 216 s | 12 | 0 | 13,558 | $0.37 | 1,042 |
+| C2 | 188 s | 13 | 0 | 12,870 | $0.36 | 1,199 |
+| C3 | 171 s | 10 | 0 | 10,361 | $0.30 | 877 |
+
+For scale, the A*.2 reports are 2,176 to 2,901 words and the B*.2 reports 1,708 to 2,136. A and B
+were not instrumented for tokens or cost; those columns exist for C only and compare to nothing.
+Wall time is not comparable either: the A/B pairs ran two at a time on the same machine, C ran three
+at a time.
+
+**What it did with its tools.** All three runs did the same thing in the same order without being
+told to: listed the tree, `cat` every source file in batches, ran `pnpm install`, then `tsc`,
+`eslint`, `pnpm audit` and `next build`, then wrote a small Node script to prove the bcrypt 72-byte
+truncation. Every run opened its report with a sentence saying what it had not done (no Postgres, no
+browser) and that the runtime findings came from reading. Nobody asked for that either.
+
+## 12.2 Extraction
+
+Same rules as A and B. Each run produced **exactly 28 claims**, all three. 89 raw rows in
+`findings/armC-raw.csv`, three of them the harness leak (`.claude/settings.json`, excluded as for arm
+A), 37 distinct claims after de-duplication against the existing 77. Thirty-five map onto existing
+claims and inherit their verdicts unchanged. Two are new, C78 and C79, adjudicated in
+`findings/evidence-04.json`. Per-claim runs, overlap and domain are in
+`findings/adjudication-key-C.json`.
+
+I did not force C's wording into the A/B shape. It used its own three-tier grouping ("Fix before
+shipping", "Should fix", "Investigate" or "Minor") instead of the five severities, and it bundled: C3's
+item 4 is one heading holding what the key records as C05, C26 and C79. The raw CSV keeps its
+headings as written and maps each to the claim it names.
+
+## 12.3 Precision
+
+| System | Claims | yes | partly | no | prevented elsewhere | Lenient | Strict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Single, arm A | 47 | 37 | 9 | 1 | 9 | 98% | 81% |
+| Swarm, arm B | 48 | 38 | 10 | 0 | 10 | 100% | 79% |
+| Naive, arm C | 37 | 30 | 7 | 0 | 7 | 100% | 81% |
+
+The same. C has no anti-padding instruction and did not pad. Every run also ended with a "checked
+and fine" list of things it looked at and found sound, which the A prompt explicitly forbids and the
+swarm's contract routes to its own section. Those were dropped as positives, as for the other arms.
+
+## 12.4 Coverage
+
+Strict true positives.
+
+| | A | B | C | Union |
+| --- | --- | --- | --- | --- |
+| All domains | 38 | 38 | **30** | 64 |
+| Shared scope (five swarm domains) | 24 | 35 | 18 | 48 |
+| Shared scope without tests | 23 | 22 | 17 | 35 |
+
+Per domain:
+
+| Domain | A | B | C | C only | Declared by |
+| --- | --- | --- | --- | --- | --- |
+| Security | 11 | 7 | **11** | 1 | A, B |
+| Correctness | 11 | 3 | **10** | 1 | A |
+| Infrastructure | 7 | 8 | 4 | 0 | A, B |
+| Documentation | 2 | 5 | 1 | 0 | A, B |
+| Dependencies | 3 | 2 | 1 | 0 | A, B |
+| Tests | 1 | 13 | 1 | 0 | A, B |
+| Performance | 2 | 0 | 2 | 0 | none |
+| Accessibility | 1 | 0 | 0 | 0 | none |
+
+Overlap, strict TPs:
+
+| Pair | Both | First only | Second only | Jaccard |
+| --- | --- | --- | --- | --- |
+| C vs A | 27 | 3 | 11 | **66%** |
+| C vs B | 13 | 17 | 25 | 24% |
+| A vs B (from section 1) | 14 | 24 | 24 | 37% |
+
+C and A found mostly the same things. C and B did not. The two things only C found, C78 (the share
+page shows outcome and hindsight while the UI says only "view this idea") and C79 (an empty PATCH
+body succeeds), are both informational.
+
+## 12.5 Value
+
+Rubric from section 8, re-applied from titles for all 79 claims before looking at arms. The A/B
+split differs from section 8 by a few moderate/low items because it was done again; both are in the
+record (`findings/value-rubric-applied.json`). The high tier is identical.
+
+| Value | A | B | C | C found in 3 of 3 runs |
+| --- | --- | --- | --- | --- |
+| High | 4 | 3 | **4** | 4 |
+| Moderate | 22 | 17 | 16 | 12 |
+| Low / hygiene | 12 | 18 | 10 | 2 |
+
+**C found every high-value defect in every run**, including C26, the calibration defect that only
+arm A had found and that the swarm filed under "nobody owns this." The eleven true positives A found
+and C did not are six moderate and five low: `serializeIdea` returns the whole row, `outcomeRecordedAt`
+reset on edit, Node engines mismatch, `next/font` needs network at build, no backup plan,
+accessibility gaps, and five hygiene items (boilerplate assets, duplicated build allowlist, cookie
+not `__Host-` prefixed, Prisma version skew, hindsight scales unlabeled).
+
+## 12.6 Repeatability
+
+Strict TPs per system, tools condition for A and B.
+
+| System | TPs | Seen once | Seen 3 of 3 | TPs per run |
+| --- | --- | --- | --- | --- |
+| A, tools | 32 | 8 (25%) | 14 (44%) | 20, 23, 27 |
+| B, tools | 32 | 5 (16%) | 21 (66%) | 25, 27, 28 |
+| **C** | 30 | 6 (20%) | **18 (60%)** | 26, 22, 24 |
+
+This one I did not expect. The naive prompt is more repeatable than the engineered one, 60% against
+44%, and within a few points of the swarm. The A prompt asks for breadth and gets it, and the breadth
+is where the run-to-run variance lives. C produced 28 claims every time and the core of those 28 was
+the same core.
+
+## 12.7 The eight questions
+
+1. **Does C notice there are no tests?** Yes, 3 of 3. C1 under "Investigate" as "No tests and no
+   CI." C2 as item 7 under "Fix before shipping." C3 as one clause in the deploy-path item: "no
+   Dockerfile, CI, health endpoint or tests."
+2. **Does it decompose the missing coverage?** No. C2 came closest, one sentence: "Highest-value
+   tests: ownership checks on every `[id]` route, share-token revoke and rotate, and score
+   validation." Three areas named, no assertions, not repeated in C1 or C3. Under the same rules
+   used for A, that is one claim, C68, not four. The swarm's thirteen per-module items with assertions
+   remain the swarm's alone.
+3. **Does C find the calibration defect?** Yes, 3 of 3, and it made the cross-cutting connection
+   every time: the Edit button stays available after an outcome is recorded, the PATCH schema
+   permits it, and calibration is therefore falsifiable. C1 and C3 put it under "Fix before
+   shipping." C2 put it under "Should fix." The swarm found it in 0 of 6 runs as a finding.
+4. **Does C naturally inspect security?** Yes, and it was its largest category: 11 strict TPs, equal
+   to arm A and more than the security agent's 7. Unprompted, every run checked the JWT secret,
+   rate limiting, enumeration, session revocation, headers, CSRF posture, share-link exposure and
+   XSS sinks, and ran a probe for the bcrypt truncation.
+5. **Does C discover unrequested areas?** Performance yes: unbounded reads with no pagination in 3
+   of 3, the per-render database hit in 1, the duplicate share-page query in 1. Accessibility no, 0
+   of 3. Arm A found it in 3 of 6.
+6. **How stable?** 60% of its true positives in all three runs, 20% in one. 28 claims per run,
+   every run.
+7. **What did A's direction buy?** Coverage, modestly: 38 against 30, all of the difference moderate
+   or low, none high. Not consistency: A is less repeatable than C. Actionability is close; both give
+   a fix line per item, A per finding in a fixed shape, C in prose under numbered headings. A's
+   reports are about twice as long for eight more true positives, and the extra length is mostly
+   the hygiene tier.
+8. **Does the swarm's advantage change against C?** In shared scope it grows: 35 against 18, which
+   is 94% more, against 46% more over A. Without tests it is 22 against 17, 29% more, against parity
+   with A. On all domains it is 38 against 30. So yes, the swarm looks better against the prompt a
+   developer would type than against the prompt its author wrote. But the composition of the
+   advantage is the same: the test reviewer, plus documentation and infrastructure hygiene, and the
+   swarm still lacks the correctness lane where C found ten true positives to its three, including
+   the one that matters most.
+
+## 12.8 C against A: what a paragraph of prompt engineering is worth
+
+Arm A's prompt is 170 words that name eleven domains, tell the reviewer to look for absences, and
+fix an output shape. Arm C's is 24 words that name nothing. On this subject the difference is:
+
+- Eight more strict true positives, 38 against 30. None high. Six moderate, five low, minus the
+  three C found that A did not.
+- Zero difference in precision.
+- Lower repeatability, 44% against 60%.
+- Roughly double the report length.
+- One domain A was told about and C was not, accessibility, where A found one thing in half its
+  runs.
+
+The thing I was most worried about, prediction 5, was that a generalist would not notice an absent
+test suite without being told to look for absences. C noticed it three times without being told.
+The instruction was not what made the difference. Sonnet already looks for what is missing when you
+ask it to review for production.
+
+What the direction bought is real and small: the breadth to sweep hygiene domains an unprompted
+reviewer does not bother with. It did not buy the high-value findings, which C already had, and it
+cost consistency.
+
+## 12.9 C against B: does specialization beat what a developer would ask?
+
+On counts inside the swarm's declared scope, yes, clearly: 35 to 18. Outside tests, narrowly: 22 to
+17. On all domains, 38 to 30. On the four high-value defects, no: C found all four in every run, the
+swarm found three and filed the fourth under nobody.
+
+By lane:
+
+- **Tests.** The swarm's biggest edge and it is entirely composition. C says "no tests" once. The
+  swarm says which thirteen modules and which assertions. If the reader wants a work list, the
+  swarm wins this lane outright; if the reader wants to know whether tests exist, C already told
+  them.
+- **Security.** C 11, swarm 7. The generalist with no instructions beat the specialist with a charter
+  and gitleaks in its own lane, by the same margin arm A did.
+- **Correctness.** C 10, swarm 3. The swarm has no agent here. C found C26 every time.
+- **Infrastructure.** Swarm 8, C 4. C found the deploy path, the exposed Postgres, the `tsc` typegen
+  trap and the missing logging; it did not find the healthcheck, volume teardown, restart policy or
+  port items, which are the infra agent's checklist.
+- **Documentation.** Swarm 5, C 1. C found the product-and-compliance gap. It did not audit the README.
+- **Unprompted domains.** C 2 (performance), swarm 0, by design.
+- **Repeatability.** Swarm 66%, C 60%. Close.
+- **Actionability.** Swarm higher per item, driven by the test items and the file-and-line contract.
+  C gives a fix per heading and cites files in most of them.
+- **Auditability.** The swarm's per-agent account of tools run, tools failed and files not read is
+  still the one thing only it produces. C did something smaller and unprompted: every report opens
+  with what it did not do. That is a one-line limitations statement, not an inspection record, and
+  it is more than arm A gave.
+
+## 12.10 The three arms in one table
+
+Ordered by amount of direction. **This is an ordering, not a scale.** A to B changes two things at
+once, the amount of direction and the decomposition into agents, and B covers fewer domains than A
+by design. Read down the columns, not across a line.
+
+| | C, goal only | A, compressed structure | B, decomposed structure |
+| --- | --- | --- | --- |
+| Prompt | 24 words | 170 words | five charters, contract, orchestrator |
+| Claims (distinct) | 37 | 47 | 48 |
+| Strict precision | 81% | 81% | 79% |
+| Strict TPs, all domains | 30 | 38 | 38 |
+| Strict TPs, shared scope | 18 | 24 | 35 |
+| Shared scope without tests | 17 | 23 | 22 |
+| High-value found | 4 of 4 | 4 of 4 | 3 of 4 |
+| High-value found in every run | 4 | 3 | 2 |
+| Calibration defect (C26) | 3 of 3 | 5 of 6 | 0 of 6 |
+| Tests noticed | 3 of 3, as one item | 6 of 6, as one item | 6 of 6, as thirteen |
+| Security TPs | 11 | 11 | 7 |
+| Correctness TPs | 10 | 11 | 3 |
+| Seen 3 of 3 (tools condition) | 60% | 44% | 66% |
+| Report length, words | 877 to 1,199 | 2,176 to 2,901 | 1,708 to 2,136 |
+| Unprompted limitations statement | every run | not measured | per-agent account, every run |
+
+**The primary question, answered for this subject.** How much review structure does the model need
+before additional direction stops producing meaningful improvements? For the defects that would block
+a merge: none. Twenty-four words found all four, every time. For breadth across hygiene domains: a
+paragraph buys about eight more true positives, none of them high, at the cost of consistency and
+report length. For decomposing a known gap into a work list, and for a per-agent audit trail: only
+the swarm produces those, and they are the swarm's real product. "Finds more bugs" is not.
+
+## 12.11 What this changes in sections 10 and 11
+
+- **The largest limitation in section 11 is now smaller.** The worry was that arm A's performance
+  came from a prompt written by the swarm's author. C shows most of it came from the model. The
+  prompt added breadth in hygiene domains and nothing at the high-value tier.
+- **"Direction is what converts capability into evidence"** is still the thesis and this arm
+  sharpens it. The capability to find the most consequential defect and to notice absent tests was
+  present at zero direction. What direction produced was coverage of the lanes nobody thinks to
+  check, a decomposed work list, and a record of what was checked. Those are evidence artifacts.
+  They are not detection.
+- **The security lane result is now three for three.** Two generalists, one told to check security
+  and one not, both beat the security specialist in its own lane. That is no longer a curiosity.
+- **Prediction 5 failed for a different reason than section 9b gave.** Section 9b blamed the "look
+  for absences" sentence. C had no such sentence and noticed anyway. The prediction was wrong about
+  the model, not about the prompt.
+- **Experiment 002's first change is done.** The other two stand: a subject with tests and
+  infrastructure code, and the registered actionability and documentation rubrics applied.
+
+## 12.12 Caveats specific to this arm
+
+- One naive prompt is one draw. "As if it were about to go into production" is itself a nudge
+  toward security and operations. Cold prompts from outside reviewers are the fix.
+- Designed and written after the results, by people who knew them. The guards are in D-005; they
+  constrain the reviewer, not the prompt author.
+- Thirty-five of 37 verdicts are inherited from the A/B adjudication, not re-judged. That is by
+  instruction, and it means any A/B verdict error propagates.
+- The value rubric was re-applied for this section and the A/B moderate/low split moved by a few
+  items. The high tier did not.
+- Runs were parallel, three at once on one machine, and on overage billing per the harness's own
+  rate-limit events. Wall time is not comparable to A/B.
+- Same subject, same model, same week. Nothing here generalises.

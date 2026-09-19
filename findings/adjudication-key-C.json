@@ -1,0 +1,501 @@
+[
+ {
+  "claim_id": "C01",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "correctness",
+  "title": "Dead public API route duplicates share logic"
+ },
+ {
+  "claim_id": "C04",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "Placeholder JWT_SECRET passes validation"
+ },
+ {
+  "claim_id": "C05",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "correctness",
+  "title": "Database integrity gaps around outcome/status/hindsight"
+ },
+ {
+  "claim_id": "C06",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "security",
+  "title": "Ownership is checked in a separate read before an unscoped update"
+ },
+ {
+  "claim_id": "C07",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "security",
+  "title": "Origin and Content-Type not checked on state-changing routes"
+ },
+ {
+  "claim_id": "C09",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "infra",
+  "title": "No production deployment path"
+ },
+ {
+  "claim_id": "C11",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "Account enumeration via register/login responses"
+ },
+ {
+  "claim_id": "C13",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "infra",
+  "title": "tsc fails on a clean checkout due to a generated global type"
+ },
+ {
+  "claim_id": "C16",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "docs",
+  "title": "Missing product and compliance features"
+ },
+ {
+  "claim_id": "C19",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "JWT verification is not pinned"
+ },
+ {
+  "claim_id": "C20",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "Sessions cannot be revoked"
+ },
+ {
+  "claim_id": "C21",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "No error handling around database calls, and no error pages"
+ },
+ {
+  "claim_id": "C24",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "dependencies",
+  "title": "High-severity advisory in the dependency tree"
+ },
+ {
+  "claim_id": "C26",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "Predictions and status can be rewritten after outcome is recorded"
+ },
+ {
+  "claim_id": "C27",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "correctness",
+  "title": "Unhandled errors: registration race, missing-secret crash, silent logout"
+ },
+ {
+  "claim_id": "C28",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "correctness",
+  "title": "Invalid status filter is silently ignored"
+ },
+ {
+  "claim_id": "C30",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": false,
+  "seen_B": true,
+  "domain": "security",
+  "title": "Secure cookie flag may break plain-HTTP deploys"
+ },
+ {
+  "claim_id": "C33",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "security",
+  "title": "No security headers"
+ },
+ {
+  "claim_id": "C35",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "infra",
+  "title": "docker-compose exposes Postgres with default credentials"
+ },
+ {
+  "claim_id": "C39",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "security",
+  "title": "Redirect built from req.url"
+ },
+ {
+  "claim_id": "C43",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "performance",
+  "title": "Unbounded reads, no pagination, no size limits"
+ },
+ {
+  "claim_id": "C44",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "bcrypt silently truncates passwords beyond 72 bytes"
+ },
+ {
+  "claim_id": "C45",
+  "seen_C": [
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "docs",
+  "title": "README wording and missing sections"
+ },
+ {
+  "claim_id": "C46",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": false,
+  "seen_B": true,
+  "domain": "security",
+  "title": "Share token in URL leaks via Referrer header"
+ },
+ {
+  "claim_id": "C48",
+  "seen_C": [
+   "C1"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "performance",
+  "title": "Duplicate database query on the share page"
+ },
+ {
+  "claim_id": "C49",
+  "seen_C": [
+   "C1"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "verifySessionToken swallows secret misconfiguration"
+ },
+ {
+  "claim_id": "C57",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "security",
+  "title": "No rate limiting or brute-force protection on login/register"
+ },
+ {
+  "claim_id": "C63",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "performance",
+  "title": "Every page hits the database via SiteHeader"
+ },
+ {
+  "claim_id": "C67",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "security",
+  "title": "Share links are indexable and never expire"
+ },
+ {
+  "claim_id": "C68",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "tests",
+  "title": "No tests, no test script, no CI"
+ },
+ {
+  "claim_id": "C70",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "Validation errors are returned raw and unhelpful; invalid status ignored"
+ },
+ {
+  "claim_id": "C71",
+  "seen_C": [
+   "C1",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "infra",
+  "title": "No logging or monitoring"
+ },
+ {
+  "claim_id": "C72",
+  "seen_C": [
+   "C1",
+   "C2"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "Client-side hydration mismatches"
+ },
+ {
+  "claim_id": "C75",
+  "seen_C": [
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 2,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": true,
+  "domain": "infra",
+  "title": "Redundant database index"
+ },
+ {
+  "claim_id": "C76",
+  "seen_C": [
+   "C1",
+   "C2",
+   "C3"
+  ],
+  "recurrence_C": 3,
+  "in_AB": true,
+  "seen_A": true,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "Client fetch errors are not handled"
+ },
+ {
+  "claim_id": "C78",
+  "seen_C": [
+   "C2"
+  ],
+  "recurrence_C": 1,
+  "in_AB": false,
+  "seen_A": false,
+  "seen_B": false,
+  "domain": "security",
+  "title": "Share page exposes outcome text and hindsight scores; UI wording does not say so",
+  "sev": "informational",
+  "file": "src/app/s/[token]/page.tsx",
+  "line": "72-88",
+  "first_seen": "C"
+ },
+ {
+  "claim_id": "C79",
+  "seen_C": [
+   "C3"
+  ],
+  "recurrence_C": 1,
+  "in_AB": false,
+  "seen_A": false,
+  "seen_B": false,
+  "domain": "correctness",
+  "title": "Empty PATCH body is accepted as a successful no-op",
+  "sev": "informational",
+  "file": "src/lib/validation.ts",
+  "line": "30-38",
+  "first_seen": "C"
+ }
+]
