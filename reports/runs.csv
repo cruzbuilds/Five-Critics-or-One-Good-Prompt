@@ -3,3 +3,9 @@ A1,single,2026-09-18T22:10:51Z,2026-09-18T22:14:52Z,241,2.1.275 (Claude Code),,,
 B1,swarm,2026-09-18T22:10:51Z,2026-09-18T22:14:52Z,241,2.1.275 (Claude Code),,,,,,completed,exit=2 swarm=7461982
 A3,single,2026-09-18T22:33:45Z,2026-09-18T22:38:14Z,269,2.1.275 (Claude Code),,,,,,completed,exit=0
 B3,swarm,2026-09-18T22:33:45Z,2026-09-18T22:38:14Z,269,2.1.275 (Claude Code),,,,,,completed,exit=2 swarm=7461982
+A3.2,single-tools,2026-09-18T23:36:31Z,2026-09-18T23:39:54Z,203,sonnet,,,,,,completed,exit=0
+B3.2,swarm-tools,2026-09-18T23:36:31Z,2026-09-18T23:39:54Z,203,sonnet,,,,,,completed,exit=2 swarm=a18fba7
+A1.2,single-tools,2026-09-18T23:36:10Z,2026-09-18T23:41:02Z,292,sonnet,,,,,,completed,exit=0
+B1.2,swarm-tools,2026-09-18T23:36:10Z,2026-09-18T23:41:02Z,292,sonnet,,,,,,completed,exit=2 swarm=a18fba7
+A2.2,single-tools,2026-09-18T23:36:20Z,2026-09-18T23:41:03Z,283,sonnet,,,,,,completed,exit=0
+B2.2,swarm-tools,2026-09-18T23:36:20Z,2026-09-18T23:41:03Z,283,sonnet,,,,,,completed,exit=2 swarm=a18fba7

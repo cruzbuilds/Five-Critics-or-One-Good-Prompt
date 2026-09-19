@@ -1,0 +1,210 @@
+[
+  {
+    "claim_id": "C27",
+    "code_matches": "yes",
+    "evidence": "src/app/api/auth/register/route.ts:19-30 has no try/catch: `const existing = await prisma.user.findUnique({ where: { email } });` (:19) then `const user = await prisma.user.create({ data: { email, passwordHash, name } });` (:28-30) — a check-then-create race that surfaces Prisma P2002 as an unhandled throw. `await setSessionCookie({ sub: user.id, email: user.email });` (:32) runs after the user row exists; setSessionCookie -> createSessionToken -> getSecretKey throws at src/lib/auth.ts:9-11 `if (!secret || secret.length < 16) { throw new Error(\"JWT_SECRET is not set or is too short\"); }`. src/lib/auth.ts:49-51 `} catch { return null; }` swallows that same error in verifySessionToken.",
+    "already_prevented": "no — no error boundary or try/catch anywhere on this path; prisma/schema.prisma declares email @unique so the DB does raise, but nothing catches it",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C28",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/route.ts:13 `const statusFilter = statusParam ? ideaStatusSchema.safeParse(statusParam) : null;` and :18 `...(statusFilter?.success ? { status: statusFilter.data } : {}),` — a failed parse contributes an empty object, so an invalid ?status= yields the unfiltered list. Ranking sort at :23-25 `.map(serializeIdea).sort((a, b) => b.totalScore - a.totalScore)`. No test files exist (see C34 command).",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C29",
+    "code_matches": "partly",
+    "evidence": "Cited line 26 is `const idea = await prisma.idea.update({`; the field is five lines lower at src/app/api/ideas/[id]/outcome/route.ts:31 `outcomeRecordedAt: new Date(),`. Substance holds: the timestamp comes from an uninjected clock. `find . -name '*.test.*' -o -name '*.spec.*' -o -name '*.config' ...` returns nothing (see C34).",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "Line cite is off by five; outcomeRecordedAt is at :31, not :26."
+  },
+  {
+    "claim_id": "C30",
+    "code_matches": "yes",
+    "evidence": "src/lib/session.ts:15-21 `store.set(SESSION_COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === \"production\", sameSite: \"lax\", path: \"/\", maxAge: SESSION_TTL_SECONDS });` — secure is tied to NODE_ENV alone, with no protocol or FORCE_HTTPS check.",
+    "already_prevented": "no — README.md:64-65 documents `pnpm build && pnpm start` as a supported run mode and says nothing about requiring HTTPS",
+    "verifiable_by": "code-read",
+    "note": "The flag is code-readable; whether a given deploy is plain-HTTP (and the Safari specifics) is a deployment judgment, not established here."
+  },
+  {
+    "claim_id": "C31",
+    "code_matches": "yes",
+    "evidence": "prisma/migrations/20260917213700_score_checks/migration.sql:2-10, e.g. :3 `ADD CONSTRAINT \"Idea_differentiation_range\" CHECK (\"differentiation\" BETWEEN 1 AND 5),` and :7 `ADD CONSTRAINT \"Idea_hDifferentiation_range\" CHECK (\"hDifferentiation\" IS NULL OR \"hDifferentiation\" BETWEEN 1 AND 5),`. README.md:11 `- Score ranges enforced both in the API (Zod) and the database (CHECK constraints).` Command: `find . -path ./.git -prune -o -path ./.next -prune -o -path ./node_modules -prune -o \\( -name '*.test.*' -o -name '*.spec.*' -o -name 'vitest.config.*' -o -name 'jest.config.*' -o -name 'playwright.config.*' \\) -print` -> no output. `grep -c '\"test' package.json` -> 0.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C32",
+    "code_matches": "partly",
+    "evidence": "README.md:61-63 carries the Prisma 6.x pin rationale, but README.md:18 also records a rationale for two more deps: `- **Auth**: Signed JWT session cookie (`jose`), `bcryptjs` for password hashing — no third-party auth service`. No ADR directory exists (`ls -d docs docs/decisions` -> 'No such file or directory'). nanoid, zod, tailwind and the react/next pins have no recorded justification.",
+    "already_prevented": "partly — README.md:13-19 (Stack) plus :18 and :61-63 cover framework, DB, auth and the Prisma pin",
+    "verifiable_by": "code-read",
+    "note": "The Prisma pin is not the only recorded justification; README:18 justifies jose and bcryptjs too."
+  },
+  {
+    "claim_id": "C33",
+    "code_matches": "yes",
+    "evidence": "next.config.ts:1-7 in full: `const nextConfig: NextConfig = { /* config options here */ };` — no `headers()`, no `poweredByHeader`. Command: `grep -rn \"poweredByHeader|Referrer-Policy|referrerPolicy|X-Frame-Options|Content-Security|Strict-Transport|X-Content-Type|async headers\" src next.config.ts eslint.config.mjs postcss.config.mjs` -> no matches. src/proxy.ts:6-19 sets no response headers either; it only calls NextResponse.next() or NextResponse.redirect().",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C34",
+    "code_matches": "yes",
+    "evidence": "src/lib/validation.ts is 47 lines; :3 `export const score = z.number().int().min(1).max(5);`, :5 `export const emailSchema = z.string().trim().toLowerCase().email().max(254);`, :40-41 `export const outcomeSchema = z.object({ status: z.enum([\"DONE\", \"ABANDONED\"]),`. Command: `find . -path ./.git -prune -o -path ./.next -prune -o -path ./node_modules -prune -o \\( -name '*.test.*' -o -name '*.spec.*' -o -name 'vitest.config.*' -o -name 'jest.config.*' -o -name 'playwright.config.*' \\) -print` -> no output (zero test files in the repo).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C35",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:3 `image: postgres:16-alpine` (minor tag, no patch pin); :6-8 `POSTGRES_USER: idealog / POSTGRES_PASSWORD: idealog / POSTGRES_DB: idealog`; :9-10 `ports: - \"5432:5432\"` (no 127.0.0.1 bind, so all interfaces); no `healthcheck:` key anywhere in the 15-line file. .env.example:1 `DATABASE_URL=\"postgresql://idealog:idealog@localhost:5432/idealog?schema=public\"` matches.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C36",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/[id]/outcome/route.ts:26-37 — the single PATCH handler writes `outcomeRecordedAt: new Date(),` (:31) unconditionally, with no check of `existing.outcomeRecordedAt` (fetched at :14) and no separate edit path.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C37",
+    "code_matches": "partly",
+    "evidence": "README.md:21-31 (Getting started) lists pnpm install / cp .env.example .env / db:up / db:migrate / dev and no test step — accurate. But the claim's own precondition fails: `grep -c '\"test' package.json` -> 0 (scripts are dev, build, start, lint, postinstall, db:up, db:migrate, db:studio), and the test-file find returns nothing.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "There is no test script and no test file, so the condition the claim attaches itself to is not met."
+  },
+  {
+    "claim_id": "C38",
+    "code_matches": "yes",
+    "evidence": "src/app/api/auth/register/route.ts:10-14 (400 invalid input), :20-25 (409 duplicate email), :32 (session cookie set); src/app/api/auth/login/route.ts:20-22 and :25-27 (401 unknown email / wrong password); src/lib/auth.ts:21 `return bcrypt.hash(password, 12);` (stored hash). Zero test files in the repo (see C34 command output).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C39",
+    "code_matches": "yes",
+    "evidence": "src/proxy.ts:13-15 `if (!session) { const loginUrl = new URL(\"/login\", req.url); return NextResponse.redirect(loginUrl); }` — built from req.url, not from `req.nextUrl.clone()`, even though req.nextUrl is already used at :7.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The code fact is confirmed; the claim itself flags the proxied-deployment consequence as unconfirmed, and nothing here settles it."
+  },
+  {
+    "claim_id": "C40",
+    "code_matches": "no",
+    "evidence": "`[ -d node_modules ] && echo YES` -> YES. `ls node_modules/next/dist/docs/` -> 01-app 02-pages 03-architecture 04-community index.md. node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md documents exactly this file's shape: 'Create a `proxy.ts` (or `.js`) file in the project root, or inside `src`'; 'You can export your proxy function as either a default export or a named `proxy` export'; and `export const config = { matcher: '/about/:path*' }` at its line 56 — matching src/proxy.ts:6, :21-23. LayoutProps: node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md:335-337 and :361-362 'PageProps, LayoutProps are global helpers — no imports required. Types are generated during next dev, next build or next typegen', and the generated type is present at .next/types/routes.d.ts:66 `type LayoutProps<LayoutRoute extends LayoutRoutes> = {`, matching src/app/layout.tsx:21.",
+    "already_prevented": "yes — AGENTS.md:5 points at `node_modules/next/dist/docs/`, which is present and does verify all three conventions",
+    "verifiable_by": "tool",
+    "note": "The claim's premise is false: node_modules is present, and all three items (proxy export, config.matcher, global LayoutProps) check out against the shipped Next 16 docs."
+  },
+  {
+    "claim_id": "C41",
+    "code_matches": "yes",
+    "evidence": "`ls -d docs docs/decisions` -> `ls: cannot access 'docs': No such file or directory` (twice). No ADR file exists anywhere. The four decisions named are all real and undocumented as ADRs: Prisma/Postgres (prisma/schema.prisma, README.md:17), jose+bcryptjs session (src/lib/auth.ts:1-2, README.md:18), share-by-token (src/app/api/ideas/[id]/share/route.ts:22 `nanoid(24)`), dual score enforcement (src/lib/validation.ts:3 and prisma/migrations/20260917213700_score_checks/migration.sql:2-10).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C42",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/[id]/share/route.ts:21-22 `const shareToken = existing.shareToken && !regenerate ? existing.shareToken : nanoid(24);` (reuse vs rotation), :41-44 `const idea = await prisma.idea.update({ where: { id }, data: { shareToken: null } });` (DELETE clears). The malformed-body fallback is one line above the cited range, at :18 `const body = await req.json().catch(() => ({}));`. Zero test files (see C34 command).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Malformed-body fallback is at :18, just outside the cited 19-22 range."
+  },
+  {
+    "claim_id": "C43",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/route.ts:15-21 `const ideas = await prisma.idea.findMany({ where: { userId: user.id, ...(statusFilter?.success ? { status: statusFilter.data } : {}) }, orderBy: { createdAt: \"desc\" } });` — no take/skip/cursor. Ranking at :23-25 then sorts the whole set in memory. src/lib/validation.ts:23 `description: z.string().trim().max(5000).optional().default(\"\"),`. Body is read whole before validation at route.ts:34-35 `const body = await req.json().catch(() => null); const parsed = ideaCreateSchema.safeParse(body);` with no byte limit; next.config.ts:3-5 sets none either.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C44",
+    "code_matches": "yes",
+    "evidence": "src/lib/validation.ts:6 `export const passwordSchema = z.string().min(8).max(200);` — no byte cap. Confirmed by running, in the repo with its existing node_modules: `node -e \"const bcrypt=require('bcryptjs'); const a='A'.repeat(72)+'XXXXXXXXXX'; const b='A'.repeat(72)+'ZZZZZZZZZZ'; const h=bcrypt.hashSync(a,10); console.log('len a',Buffer.byteLength(a),'len b',Buffer.byteLength(b)); console.log('b verifies against hash of a:', bcrypt.compareSync(b,h));\"` -> `len a 82 len b 82` / `b verifies against hash of a: true`. hashPassword is src/lib/auth.ts:21 `return bcrypt.hash(password, 12);`.",
+    "already_prevented": "no — no pre-hash digest or length-in-bytes check anywhere in src/lib/auth.ts or src/lib/validation.ts",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C45",
+    "code_matches": "partly",
+    "evidence": "Wording confirmed: README.md:10 `- Share a single idea by unshareable/unguessable link — no signup required to view.` Missing sections confirmed: the file is 65 lines with headings Stack / Getting started / Data model / Key routes / Notes — no deployment, env-var, threat-model, API or runbook section; JWT_SECRET's 16-char minimum (src/lib/auth.ts:9) appears nowhere in README.md or .env.example (which only says `JWT_SECRET=\"change-me-to-a-long-random-string\"`). But the proxy sub-point misreads the text: README.md:55-57 already scopes the claim and credits per-route checks — `All \\`/ideas*\\` pages are protected by \\`src/proxy.ts\\` (Next's middleware convention) in addition to per-request auth checks in each Server Component and API route`. src/proxy.ts:4 `const PROTECTED_PREFIXES = [\"/ideas\"];` and :22 `matcher: [\"/ideas/:path*\"]` match that scope, and every private API route does call requireUser (grep: src/app/api/ideas/route.ts:8,31; [id]/route.ts:10,21,46; [id]/outcome/route.ts:10; [id]/share/route.ts:11,34).",
+    "already_prevented": "partly — the README does not overclaim proxy coverage; that sub-point is already handled at README.md:55-57",
+    "verifiable_by": "code-read",
+    "note": "Wording and missing-section sub-points hold; the 'proxy protection claim' sub-point does not, since README:55-57 already limits it to /ideas* and names the per-route checks."
+  },
+  {
+    "claim_id": "C46",
+    "code_matches": "partly",
+    "evidence": "Token is in the path — src/app/s/[token]/page.tsx:24-30 `export default async function SharedIdeaPage({ params }: { params: Promise<{ token: string }> })` ... `const idea = await getSharedIdea(token);`. No Referrer-Policy is set anywhere: `grep -rn \"poweredByHeader|Referrer-Policy|referrerPolicy|X-Frame-Options|Content-Security|Strict-Transport|X-Content-Type|async headers\" src next.config.ts ...` -> no matches. But the stated leak path does not exist: the description is rendered as inert text at page.tsx:50-52 `{idea.description && (<p className=\"mt-2 whitespace-pre-wrap text-sm text-muted\">{idea.description}</p>)}`, and `grep -rn \"<a |href=\" \"src/app/s/[token]/page.tsx\" src/components/ui.tsx` -> no matches, so the page renders no clickable link at all and no cross-origin subresource (fonts come from next/font/google in src/app/layout.tsx:2-14, which self-hosts at build).",
+    "already_prevented": "partly — React escapes the description and no auto-linking exists, so there is no anchor on the page to carry a Referer; modern browsers also default to strict-origin-when-cross-origin, which strips the path",
+    "verifiable_by": "tool",
+    "note": "The missing Referrer-Policy is real, but the named mechanism (a link clicked from the description) is not present in the rendered page."
+  },
+  {
+    "claim_id": "C47",
+    "code_matches": "yes",
+    "evidence": "src/proxy.ts:6-8 `const isProtected = PROTECTED_PREFIXES.some((p) => req.nextUrl.pathname.startsWith(p)); if (!isProtected) return NextResponse.next();`, :10-11 cookie read + verify, :13-16 redirect. Zero test files in the repo (see C34 command output); `grep -c '\"test' package.json` -> 0.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C48",
+    "code_matches": "yes",
+    "evidence": "src/app/s/[token]/page.tsx:7-10 `async function getSharedIdea(token: string) { const idea = await prisma.idea.findUnique({ where: { shareToken: token } }); return idea; }` — a bare async function, not wrapped in React `cache()`. It is awaited twice per request: :18 inside generateMetadata and :30 inside the page component. Prisma calls are not covered by Next's fetch-level request memoization.",
+    "already_prevented": "no — the codebase knows the fix (src/lib/session.ts:30 `export const getSession = cache(...)` and :37 `export const getCurrentUser = cache(...)`) but did not apply it here",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C49",
+    "code_matches": "yes",
+    "evidence": "src/lib/auth.ts:43-51 `try { const { payload } = await jwtVerify(token, getSecretKey()); ... } catch { return null; }` — getSecretKey's throw at :9-11 `if (!secret || secret.length < 16) { throw new Error(\"JWT_SECRET is not set or is too short\"); }` is caught by the same bare catch. src/proxy.ts:11-15 then treats null as 'no session' and redirects to /login, while src/app/api/auth/login/route.ts:29 `await setSessionCookie(...)` has no catch and 500s.",
+    "already_prevented": "no — nothing validates JWT_SECRET at boot; the only check is inside getSecretKey, on first use",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C50",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/[id]/route.ts:14 `const idea = await prisma.idea.findFirst({ where: { id, userId: user.id } });`, :25 and :50 the same `findFirst({ where: { id, userId: user.id } })` for PATCH and DELETE; the same pattern is the only owner check in [id]/outcome/route.ts:14 and [id]/share/route.ts:15,38. Note the subsequent writes are unscoped (`update({ where: { id } })` at [id]/route.ts:37-40, outcome/route.ts:26, share/route.ts:24,41), so the findFirst is load-bearing. Zero test files in the repo (see C34 command output).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C51",
+    "code_matches": "partly",
+    "evidence": "pnpm-workspace.yaml is 3 lines in full: `ignoredBuiltDependencies:` / `  - sharp` / `  - unrs-resolver`. package.json carries a different key: `\"pnpm\": { \"onlyBuiltDependencies\": [\"@prisma/client\", \"@prisma/engines\", \"prisma\"] }`. Two files, but two complementary keys (a deny list and an allow list) with no overlapping entries — not the same setting written twice.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The two files hold different pnpm keys (ignoredBuiltDependencies vs onlyBuiltDependencies) listing disjoint packages, so they are split config rather than duplicated config."
+  },
+  {
+    "claim_id": "C52",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:11-15 `volumes: - idealog_pgdata:/var/lib/postgresql/data` ... `volumes:` (:14) / `  idealog_pgdata:` (:15) — the named volume is declared at :15, one line below the cite. package.json scripts are dev, build, start, lint, postinstall, db:up, db:migrate, db:studio — no db:down. Command: `grep -rn \"down -v|db:down|compose down\" README.md package.json AGENTS.md CLAUDE.md` -> no matches. README.md:64-65 mentions docker-compose only for bringing Postgres up.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Volume name is at line 15; line 14 is the top-level `volumes:` key that introduces it."
+  }
+]

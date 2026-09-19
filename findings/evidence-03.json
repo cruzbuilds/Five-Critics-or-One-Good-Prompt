@@ -1,0 +1,197 @@
+[
+  {
+    "claim_id": "C53",
+    "code_matches": "yes",
+    "evidence": "src/lib/session.ts:15-21 `store.set(SESSION_COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === \"production\", sameSite: \"lax\", path: \"/\", maxAge: SESSION_TTL_SECONDS });`. Cookie name is src/lib/auth.ts:4 `const SESSION_COOKIE = \"idealog_session\";` -- no `__Host-` prefix. Command: `ls LICENSE*` -> `ls: cannot access 'LICENSE*': No such file or directory`.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "All three sub-claims hold; the cookie does set path:'/' and httpOnly, so only the Secure flag and the prefix are missing."
+  },
+  {
+    "claim_id": "C54",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:1-4 `services:` / `  db:` / `    image: postgres:16-alpine` / `    restart: unless-stopped`. Line 4 is exactly the cited directive.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read"
+  },
+  {
+    "claim_id": "C55",
+    "code_matches": "yes",
+    "evidence": "package.json:16 `\"@prisma/client\": \"^6.19.3\",` and package.json:21 `\"prisma\": \"6.19.3\",` -- both inside the `dependencies` block (package.json:15-25), so the CLI ships to production. Command: `grep -n engines package.json` -> only `41:      \"@prisma/engines\",` (pnpm.onlyBuiltDependencies), i.e. no engines field. `ls .nvmrc .node-version` -> both 'No such file or directory'. Advisory path confirmed: `cat node_modules/.pnpm/deepmerge-ts*/node_modules/deepmerge-ts/package.json | grep version` -> `\"version\": \"7.1.5\"` (<8); pnpm-lock.yaml:2562-2565 `'@prisma/config@6.19.3':` ... `deepmerge-ts: 7.1.5`. `grep -rn '@prisma/config|deepmerge' src/` -> not referenced in src/, confirming it is a CLI/tooling path only.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "The title also says 'build-time font fetch' but the desc body never mentions fonts; also `prisma` in dependencies is load-bearing here because package.json:10 runs `postinstall: prisma generate`."
+  },
+  {
+    "claim_id": "C56",
+    "code_matches": "yes",
+    "evidence": "Command: `find . -path ./node_modules -prune -o -path ./.next -prune -o \\( -name '*.test.*' -o -name '*.spec.*' -o -name 'vitest*' -o -name 'jest*' -o -name 'playwright*' \\) -print` -> no output. `grep -n 'test|vitest|jest' package.json` -> exit 1 (no match). The client components named exist and carry logic: src/components/score-picker.tsx:26-44 (radiogroup), src/components/auth-form.tsx:26-41 (submit/error path), src/components/idea-create-form.tsx:40-55, src/components/outcome-form.tsx:44-59.",
+    "already_prevented": "no",
+    "verifiable_by": "tool"
+  },
+  {
+    "claim_id": "C57",
+    "code_matches": "yes",
+    "evidence": "src/app/api/auth/login/route.ts:7 `export async function POST(req: Request) {` with no throttle: the handler goes straight from parse (line 9) to `prisma.user.findUnique` (line 19) to `verifyPassword` (line 24). src/proxy.ts:4 `const PROTECTED_PREFIXES = [\"/ideas\"];` and src/proxy.ts:22 `matcher: [\"/ideas/:path*\"]` -- the proxy never runs on /api/auth/*, so nothing upstream limits it. Password rule: src/lib/validation.ts:6 `export const passwordSchema = z.string().min(8).max(200);`. Cost 12: src/lib/auth.ts:21 `return bcrypt.hash(password, 12);`. bcryptjs is pure JS: `find node_modules/.pnpm/bcryptjs* -name '*.node' -o -name 'binding.gyp'` -> empty; package.json description 'Optimized bcrypt in plain JavaScript with zero dependencies'. Measured cost: `node -e 'await bcrypt.hash(\"password123\",12)'` x3 -> `452.9ms`, `415.8ms`, `414.1ms` (cost 10 for comparison: `145.5ms`).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Login itself returns 401 before hashing when the email is unknown (route.ts:20-22), so the CPU-exhaustion vector runs through /api/auth/register, which is where the claim places it."
+  },
+  {
+    "claim_id": "C58",
+    "code_matches": "yes",
+    "evidence": "src/lib/calibration.ts:22 `return (hindsight ?? predicted) - predicted;` versus src/lib/calibration.ts:28-29 `const avgTotalDelta = withHindsight.reduce((sum, i) => sum + (i.delta ?? 0), 0) / withHindsight.length;`. Two different fallbacks in the same function.",
+    "already_prevented": "partly",
+    "verifiable_by": "code-read",
+    "note": "Both fallback branches are unreachable for DTOs from serializeIdea: the filter at calibration.ts:15 is `i.hindsightTotal != null`, and src/lib/scoring.ts:28-39 returns non-null only when all four h-scores are set, while scoring.ts:41-46 makes `delta` non-null exactly when hindsightTotal is -- so `?? predicted` and `?? 0` never fire in practice."
+  },
+  {
+    "claim_id": "C59",
+    "code_matches": "yes",
+    "evidence": "src/lib/calibration.ts:14-31 is the whole of `computeCalibration`, including `if (withHindsight.length === 0) return null;` (line 16), the `hindsight ?? predicted` fallback (line 22) and the two averages (lines 24, 28-29). Command: `find . ... -name '*.test.*' -o -name '*.spec.*'` -> no output; `grep -n 'test' package.json` -> exit 1. No test exercises it.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "The 'hindsight??predicted fallback' branch it asks to test is dead given serializeIdea's invariant (see C58), so a test would be pinning behaviour that cannot currently occur."
+  },
+  {
+    "claim_id": "C60",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/[id]/route.ts:37-40 `const idea = await prisma.idea.update({ where: { id }, data: parsed.data, });`. Zod key-stripping verified against the installed zod: `node -e '...z.object({title,status}).safeParse({title:\"hi\",userId:\"attacker\",shareToken:\"evil\"})...'` -> `zod version: 4.6.5` / `parsed.data = {\"title\":\"hi\"}` -- userId and shareToken are dropped. No test file exists (`find` for *.test.*/*.spec.* -> no output).",
+    "already_prevented": "yes",
+    "verifiable_by": "tool",
+    "note": "Zod strips the fields today (src/lib/validation.ts:30-38 has no userId/shareToken keys); the claim is only about the absence of a regression test, and that part is true."
+  },
+  {
+    "claim_id": "C61",
+    "code_matches": "yes",
+    "evidence": "README.md:23 `Requires Docker (for local Postgres) and Node 20+.` (exact line). `grep -n engines package.json` -> only `41: \"@prisma/engines\",` inside pnpm.onlyBuiltDependencies, so no engines field. `ls .nvmrc .node-version` -> both missing. package.json:16 `\"@prisma/client\": \"^6.19.3\"` vs package.json:21 `\"prisma\": \"6.19.3\"`.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Whether Node 20 is 'past end of life' is an external calendar fact (Node 20 maintenance ended 2026-04-30), not something the repo shows; it overlaps C55 on the version-skew half."
+  },
+  {
+    "claim_id": "C62",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml is 15 lines in full and contains no `healthcheck:` key: lines 1-15 are `services:` / `  db:` / `    image: postgres:16-alpine` / `    restart: unless-stopped` / `    environment:` (3 vars) / `    ports:` / `      - \"5432:5432\"` / `    volumes:` / `      - idealog_pgdata:/var/lib/postgresql/data` / `volumes:` / `  idealog_pgdata:`. package.json:11-12 `\"db:up\": \"docker compose up -d\"` and `\"db:migrate\": \"prisma migrate dev\"` are separate scripts with no wait step, and README.md:28-29 tells the reader to run them back to back.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The 'fails intermittently' outcome was not reproduced (running the DB is out of scope), so the race is established by reading but its frequency is judgment."
+  },
+  {
+    "claim_id": "C63",
+    "code_matches": "partly",
+    "evidence": "src/app/layout.tsx:28 `<SiteHeader />` inside RootLayout; src/components/site-header.tsx:6 `const user = await getCurrentUser();`. But src/lib/session.ts:31-34 short-circuits before any DB call: `const store = await cookies(); const token = store.get(SESSION_COOKIE)?.value; if (!token) return null;` and session.ts:38-40 `const session = await getSession(); if (!session) return null; const user = await prisma.user.findUnique({ where: { id: session.sub } });`. The dynamic-rendering half is confirmed: `python3 -c \"json.load(open('.next/prerender-manifest.json'))\"` -> `routes: ['/_global-error', '/favicon.ico']`, `dynamicRoutes: []`, i.e. of the 18 entries in .next/app-path-routes-manifest.json only those two are prerendered; `find .next/server/app -name '*.html'` -> only `_global-error.html`.",
+    "already_prevented": "partly",
+    "verifiable_by": "tool",
+    "note": "Every route is dynamic (the `cookies()` read alone does that), but the DB query only runs when a session cookie is actually present -- an anonymous visitor to `/` or `/s/[token]` triggers no user lookup, so the title 'Every page hits the database' overstates it."
+  },
+  {
+    "claim_id": "C64",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:1-15 is the entire file (15 lines, Postgres service + named volume, quoted in full under C62). There is no test infrastructure to choose between: `find . -name '*.test.*' -o -name '*.spec.*' -o -name 'vitest*' -o -name 'jest*'` -> no output, `grep -n 'test' package.json` -> exit 1, `ls -d .github` -> No such file or directory.",
+    "already_prevented": "no",
+    "verifiable_by": "judgment",
+    "note": "This records an open decision rather than a defect in the code; nothing in the file is wrong."
+  },
+  {
+    "claim_id": "C65",
+    "code_matches": "yes",
+    "evidence": "src/app/layout.tsx:2 `import { Geist, Geist_Mono } from \"next/font/google\";` and layout.tsx:6-14 `const geistSans = Geist({ variable: \"--font-geist-sans\", subsets: [\"latin\"] });` / `const geistMono = Geist_Mono({ ... })`. The loader fetches Google at build: `grep -roh 'https://fonts.googleapis.com[^\"]*' node_modules/next/dist/compiled/@next/font/dist/google/*.js` -> `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, `. Proof the fetch happened in the committed build: `ls .next/static/media/` -> 11 hashed `.woff2` files, and .next/server/next-font-manifest.js maps each app route to `static/media/caa3a2e1cccd8315-s.p...woff2` etc.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "The build artifacts prove the fetch occurs; the offline-CI failure itself was not reproduced, which the claim's own fail text already concedes."
+  },
+  {
+    "claim_id": "C66",
+    "code_matches": "yes",
+    "evidence": "README.md:3-6 `Log ideas, score them on differentiation, evidence, cost, and reversibility` / `(1-5 each), and see them ranked by total score. ...` -- the range appears, the direction never does, and no later section adds it (README.md:36-38 repeats only 'each 1-5'). The direction exists solely at src/components/idea-create-form.tsx:11-12 `{ key: \"cost\", label: \"Cost\", hint: \"1 = expensive/slow, 5 = cheap/fast to try\" }` / `{ key: \"reversibility\", label: \"Reversibility\", hint: \"1 = hard to undo, 5 = easy to walk away\" }`.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The '(1-5 each)' text is on README.md:4, not the cited line 5; the substance is otherwise exact."
+  },
+  {
+    "claim_id": "C67",
+    "code_matches": "yes",
+    "evidence": "All four sub-claims check out. (a) No noindex: `grep -rn 'robots|noindex|Cache-Control|no-store' src/` -> NONE in src; src/app/s/[token]/page.tsx:19-21 returns only `{ title: idea ? ... }`. (b) No no-store on the JSON endpoint: src/app/api/share/[token]/route.ts:16 `return NextResponse.json({` with no second headers argument. (c) Two separate queries: src/app/s/[token]/page.tsx:8 `const idea = await prisma.idea.findUnique({ where: { shareToken: token } });` is called once at line 18 (generateMetadata) and again at line 30 (the page), and `getSharedIdea` is a plain async function -- unlike src/lib/session.ts:30 and :37 it is not wrapped in React `cache()`. (d) Plaintext token: prisma/schema.prisma:50 `shareToken String? @unique`, written raw at src/app/api/ideas/[id]/share/route.ts:22 `existing.shareToken && !regenerate ? existing.shareToken : nanoid(24);`. (e) Unthrottled: src/proxy.ts:22 `matcher: [\"/ideas/:path*\"]` does not cover /s or /api/share.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "nanoid(24) gives ~143 bits, so the link is unguessable; the claim is about indexing and revocation, not guessing."
+  },
+  {
+    "claim_id": "C68",
+    "code_matches": "yes",
+    "evidence": "package.json:5-14 `\"scripts\": { \"dev\", \"build\", \"start\", \"lint\", \"postinstall\", \"db:up\", \"db:migrate\", \"db:studio\" }` -- no test script (`grep -n 'test|vitest|jest' package.json` -> exit 1). `find` for *.test.*/*.spec.*/vitest*/jest*/playwright* -> no output. `ls -d .github` -> No such file or directory. The named refactor risk is real: the authorization guard is a repeated `where: { id, userId: user.id }` at src/app/api/ideas/[id]/route.ts:14, :25, :50, src/app/api/ideas/[id]/outcome/route.ts:14, src/app/api/ideas/[id]/share/route.ts:15, :38 and src/app/ideas/[id]/page.tsx:17 -- seven hand-written copies with no shared helper.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "The tool line's 'next build: passes' is corroborated by the committed .next/ output (BUILD_ID, prerender-manifest.json present); I did not re-run it."
+  },
+  {
+    "claim_id": "C69",
+    "code_matches": "partly",
+    "evidence": "README.md:46-57 is exactly the 'Key routes' section and its table lists only `/`, `/login`, `/register`, `/ideas`, `/ideas/[id]`, `/s/[token]` -- pages only, as claimed. But the handler count is wrong: `grep -rn '^export async function (GET|POST|PATCH|PUT|DELETE)' src/app/api/` returns 13 handlers across 9 route.ts files (login POST, logout POST, me GET, register POST, ideas GET+POST, ideas/[id] GET+PATCH+DELETE, outcome PATCH, share POST+DELETE, share/[token] GET), not 10. The two specifics it calls out are real and undocumented: src/app/api/share/[token]/route.ts:9 `export async function GET(_req: Request, { params }: Params) {` and src/app/api/ideas/[id]/share/route.ts:19 `const regenerate = Boolean(body?.regenerate);`.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "There are 13 undocumented handlers in 9 files, not 10; the count is the only thing off."
+  },
+  {
+    "claim_id": "C70",
+    "code_matches": "partly",
+    "evidence": "The raw-message mechanism is exactly at the cited line -- src/app/api/auth/login/route.ts:12 `{ error: parsed.error.issues[0]?.message ?? \"Invalid input\" },` -- and is repeated at register/route.ts:12, ideas/route.ts:38, ideas/[id]/route.ts:33 and outcome/route.ts:22. But the `name` scenario belongs to register, not login: loginSchema (src/lib/validation.ts:14-17) has no `name` field. The scenario itself reproduces exactly: src/components/auth-form.tsx:24 `: { email, password, name: name || undefined };` (a single space is truthy, so \" \" is sent) meets src/lib/validation.ts:11 `name: z.string().trim().min(1).max(100).optional(),`, and `node -e 'z.object({name:z.string().trim().min(1).max(100).optional()}).safeParse({name:\" \"})'` -> `success: false | issues[0].message = \"Too small: expected string to have >=1 characters\"` -- verbatim the string the claim predicts. The title's second half also holds: src/app/api/ideas/route.ts:13 `const statusFilter = statusParam ? ideaStatusSchema.safeParse(statusParam) : null;` then :18 `...(statusFilter?.success ? { status: statusFilter.data } : {}),` silently returns all ideas for an invalid status instead of a 400.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Everything described is true but the name-field path is /api/auth/register, not the cited /api/auth/login."
+  },
+  {
+    "claim_id": "C71",
+    "code_matches": "yes",
+    "evidence": "src/lib/prisma.ts:9-11 `new PrismaClient({ log: process.env.NODE_ENV === \"development\" ? [\"error\", \"warn\"] : [\"error\"], });`. Command: `grep -rn 'console\\.|logger|pino|winston' src/` -> no matches at all. The 401 at src/app/api/auth/login/route.ts:21 and :26 and the 409 at register/route.ts:21-24 return without recording anything.",
+    "already_prevented": "no",
+    "verifiable_by": "tool"
+  },
+  {
+    "claim_id": "C72",
+    "code_matches": "partly",
+    "evidence": "The cited lines are exact -- src/components/share-control.tsx:18-23 `const url = shareToken && typeof window !== \"undefined\" ? \\`${window.location.origin}/s/${shareToken}\\` : shareToken ? \\`/s/${shareToken}\\` : null;` -- and the value is rendered at share-control.tsx:72 `<Input readOnly value={url ?? \"\"} className=\"font-mono text-xs\" />`. ShareControl is SSR'd (it is reached from the server page src/app/ideas/[id]/page.tsx:22 `<IdeaDetail idea={dto} />`), so the server emits the relative path and the client's first render emits the absolute URL. The toLocaleDateString half is in a different file: `grep -rn toLocale src/` -> a single hit, `src/components/idea-detail.tsx:189: Recorded {new Date(idea.outcomeRecordedAt).toLocaleDateString()}`.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "Both behaviours exist as described, but only the typeof-window branch is in the cited share-control.tsx; toLocaleDateString is at idea-detail.tsx:189, and neither was run to confirm React actually warns."
+  },
+  {
+    "claim_id": "C73",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:11-15 `    volumes:` / `      - idealog_pgdata:/var/lib/postgresql/data` / (blank) / `volumes:` / `  idealog_pgdata:` -- one named volume, no bind mount, no second copy. Command: `grep -rni 'backup|restore|pg_dump' README.md AGENTS.md CLAUDE.md docker-compose.yml` -> NONE. Hard delete confirmed at src/app/api/ideas/[id]/route.ts:53 `await prisma.idea.delete({ where: { id } });` with no soft-delete column in prisma/schema.prisma:26-57, and prisma/schema.prisma:29 `user User @relation(fields: [userId], references: [id], onDelete: Cascade)` cascades a user deletion to every idea.",
+    "already_prevented": "no",
+    "verifiable_by": "tool"
+  },
+  {
+    "claim_id": "C74",
+    "code_matches": "partly",
+    "evidence": "The cited lines are the redirect and it does drop the destination -- src/proxy.ts:14-15 `const loginUrl = new URL(\"/login\", req.url);` / `return NextResponse.redirect(loginUrl);` with no `next`/`from` search param, and src/components/auth-form.tsx:39 `router.push(\"/ideas\");` hard-codes the landing page. The three accessibility items are all real but live in other files: (a) `grep -n 'tabIndex|onKeyDown|aria-' src/components/score-picker.tsx` -> only `26: role=\"radiogroup\" aria-label={label}` and `32: aria-checked={value === n}`, so the five `<button role=\"radio\">` at score-picker.tsx:28-44 are each a tab stop with no roving tabindex and no arrow-key handler; (b) src/components/outcome-form.tsx:64 `<Label>What happened?</Label>` has no htmlFor and the controls below it are plain `<button>`s (outcome-form.tsx:66-79) with no radiogroup/aria-labelledby; (c) src/components/share-control.tsx:72 `<Input readOnly value={url ?? \"\"} className=\"font-mono text-xs\" />` has no id, aria-label or associated Label.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The desc describes only the accessibility issues while the file/line points at the unrelated redirect in src/proxy.ts, so the citation matches the title's first half but not its body."
+  },
+  {
+    "claim_id": "C75",
+    "code_matches": "yes",
+    "evidence": "prisma/schema.prisma:55-56 `@@index([userId])` / `@@index([userId, status])` -- the first is a leftmost prefix of the second. prisma/migrations/20260917213700_score_checks/migration.sql:2-10 adds only the eight BETWEEN-1-AND-5 checks (e.g. `ADD CONSTRAINT \"Idea_hCost_range\" CHECK (\"hCost\" IS NULL OR \"hCost\" BETWEEN 1 AND 5)`) -- no all-or-none and no outcome/status constraint -- and none of those CHECKs appear anywhere in prisma/schema.prisma (the h-fields are declared bare at schema.prisma:44-47 `hDifferentiation Int?` etc.). prisma/schema.prisma:18 `email String @unique` maps to a plain case-sensitive Postgres unique index (no @db.Citext, no functional index in either migration).",
+    "already_prevented": "partly",
+    "verifiable_by": "code-read",
+    "note": "The app layer covers two of these: src/lib/validation.ts:5 `z.string().trim().toLowerCase().email()` is applied to both register and login so emails are normalised before they reach the DB, and src/lib/validation.ts:40-47 `outcomeSchema` requires all four hindsight scores together while ideaUpdateSchema (validation.ts:30-38) exposes none of them -- but PATCH can still set status back to ACTIVE with an outcome already recorded, so that sub-claim is unguarded."
+  },
+  {
+    "claim_id": "C76",
+    "code_matches": "yes",
+    "evidence": "src/components/auth-form.tsx:26-30 `const res = await fetch(url, { method: \"POST\", headers: {...}, body: JSON.stringify(body), });` -- no try/catch, and `setLoading(false)` only runs inside the `if (!res.ok)` branch at line 35, so a rejected fetch leaves the button on auth-form.tsx:91 `\"Please wait…\"`. Same shape at idea-create-form.tsx:40-44 and outcome-form.tsx:44-48. Silent failures: src/components/share-control.tsx:44-46 `if (res.ok) { onChange(null); }` with no else; share-control.tsx:33-37 likewise; src/components/idea-detail.tsx:76-81 `if (res.ok) { router.push(...) } else { setDeleting(false); }` sets no error. Unhandled clipboard rejection at src/components/share-control.tsx:51 `await navigator.clipboard.writeText(url);`.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read"
+  },
+  {
+    "claim_id": "C77",
+    "code_matches": "yes",
+    "evidence": "src/components/outcome-form.tsx:96-103 `{DIMENSION_FIELDS.map((f) => (` / `  <ScorePicker key={f.key} label={f.label} value={scores[f.key]} onChange={...} />` -- no `hint` prop, and outcome-form.tsx:8-13 defines the fields with `label` only. The inversion is stated only on the create form: src/components/idea-create-form.tsx:11 `hint: \"1 = expensive/slow, 5 = cheap/fast to try\"` and :12 `hint: \"1 = hard to undo, 5 = easy to walk away\"`, passed at idea-create-form.tsx:86 `hint={f.hint}`. ScorePicker does support the prop (src/components/score-picker.tsx:9 `hint?: string;`, :24 renders it), so it is simply not passed.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The same omission also affects the prediction-edit form at src/components/idea-detail.tsx:141-148, which likewise renders ScorePicker without hints."
+  }
+]

@@ -1,0 +1,210 @@
+[
+  {
+    "claim_id": "C01",
+    "code_matches": "yes",
+    "evidence": "grep -rn \"fetch(\" src/ returns only: idea-create-form.tsx:40 POST /api/ideas; idea-detail.tsx:57 PATCH and :75 DELETE /api/ideas/${id}; logout-button.tsx:13 POST /api/auth/logout; auth-form.tsx:26 POST /api/auth/login|register; outcome-form.tsx:44 PATCH /api/ideas/${id}/outcome; share-control.tsx:27 POST and :42 DELETE /api/ideas/${id}/share. No UI call to GET /api/auth/me, GET /api/ideas, GET /api/ideas/[id] or GET /api/share/[token]. Field list src/app/api/share/[token]/route.ts:16-35 mirrors what src/app/s/[token]/page.tsx:33-93 renders from its own prisma.idea.findUnique (page.tsx:8). grep -rn \"PublicIdeaDTO\" src/ -> single hit src/lib/types.ts:28 (the declaration), no importers.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "POST /api/ideas and PATCH/DELETE /api/ideas/[id] are live; only the GET handlers on those paths are unused."
+  },
+  {
+    "claim_id": "C02",
+    "code_matches": "yes",
+    "evidence": "wc -l README.md -> 65 README.md. Sections present: '# Idea Log', '## Stack' (13), '## Getting started' (21), '## Data model' (33), '## Key routes' (46), '## Notes' (59). No limitations/production section. README.md:29 'pnpm db:migrate       # applies migrations' maps to package.json:12 \"db:migrate\": \"prisma migrate dev\". grep -rn 'rate limit|password reset|email verif|revoke|test' README.md -> no such content; no test files or test script exist (find for *.test.*/*.spec.* returns nothing).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Claim cites lines 1-66; the file is 65 lines."
+  },
+  {
+    "claim_id": "C03",
+    "code_matches": "partly",
+    "evidence": "git ls-files -> public/file.svg, public/globe.svg, public/next.svg, public/vercel.svg, public/window.svg. grep -rn '\\.svg' src/ -> 'no svg references in src'. README.md:10 'Share a single idea by unshareable/unguessable link' (the wording typo). README.md:23 'Requires Docker (for local Postgres) and Node 20+.' src/app/favicon.ico is tracked and IS used: the build emitted .next/server/app/favicon.ico/route.js, i.e. Next's file-convention favicon route.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "The five public/*.svg files are genuinely unreferenced, but src/app/favicon.ico is not unused - it is served by Next's file convention; the claim also bundles a README typo and a missing production section."
+  },
+  {
+    "claim_id": "C04",
+    "code_matches": "yes",
+    "evidence": ".env.example:2 JWT_SECRET=\"change-me-to-a-long-random-string\". node -e 'const s=\"change-me-to-a-long-random-string\"; console.log(\"len=\"+s.length, \"passes >=16:\", s.length>=16)' -> len=33 passes >=16: true. src/lib/auth.ts:8-11 'const secret = process.env.JWT_SECRET; if (!secret || secret.length < 16) { throw new Error(\"JWT_SECRET is not set or is too short\"); }'. README.md:27 'cp .env.example .env  # fill in DATABASE_URL / JWT_SECRET (or keep the defaults)'. src/lib/auth.ts:33 .setProtectedHeader({ alg: \"HS256\" }) - the placeholder is the HMAC key.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C05",
+    "code_matches": "yes",
+    "evidence": "prisma/schema.prisma:41-47 declares outcome/outcomeRecordedAt/hDifferentiation/hEvidence/hCost/hReversibility all as plain nullable columns with no constraint. prisma/migrations/20260917213700_score_checks/migration.sql:2-10 adds only range CHECKs ('hDifferentiation' IS NULL OR BETWEEN 1 AND 5 etc.) - nothing ties outcome to hindsight or to status. Those CHECKs exist only in the hand-written SQL; schema.prisma has no matching declaration.",
+    "already_prevented": "partly",
+    "verifiable_by": "code-read",
+    "note": "The API path is tighter than the DB: src/lib/validation.ts:40-47 outcomeSchema requires status DONE|ABANDONED plus outcome plus all four hindsight scores together, and no API route can clear outcome (ideaUpdateSchema, validation.ts:30-38, has no outcome field), so the 'outcome removed leaves hindsightTotal null' scenario is not reachable through the app - only through direct DB writes."
+  },
+  {
+    "claim_id": "C06",
+    "code_matches": "yes",
+    "evidence": "src/app/api/ideas/[id]/route.ts:25 'const existing = await prisma.idea.findFirst({ where: { id, userId: user.id } });' then :37-40 'const idea = await prisma.idea.update({ where: { id }, data: parsed.data, });'. Same split at :50/:53 (DELETE), src/app/api/ideas/[id]/outcome/route.ts:14/:26, src/app/api/ideas/[id]/share/route.ts:15/:24 and :38/:41. No try/catch anywhere in src/app/api (grep -rn 'try {' src/app/api/ -> none), so a P2025 from the update propagates.",
+    "already_prevented": "partly",
+    "verifiable_by": "code-read",
+    "note": "The pre-check does scope ownership today, so there is no current IDOR; the concrete exposure is the unhandled P2025/500 on a concurrent delete."
+  },
+  {
+    "claim_id": "C07",
+    "code_matches": "yes",
+    "evidence": "src/app/api/auth/login/route.ts:8 'const body = await req.json().catch(() => null);' - same pattern at register/route.ts:8, ideas/route.ts:34, ideas/[id]/route.ts:28, outcome/route.ts:17, share/route.ts:18. grep for headers.get / Origin / Content-Type across src/app/api/ and src/proxy.ts (excluding the client-side request header) -> 'none found'. No CSRF token anywhere. src/lib/session.ts:18 sameSite: \"lax\".",
+    "already_prevented": "no",
+    "verifiable_by": "judgment",
+    "note": "SameSite=Lax protects already-authenticated state-changing routes, but login/register are unauthenticated, so Lax does not block a cross-site login-CSRF; whether a text/plain form POST is accepted depends on browser/runtime behaviour not settleable from the repo."
+  },
+  {
+    "claim_id": "C08",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:3 'image: postgres:16-alpine' and :4 'restart: unless-stopped'. No other compose file exists; no Dockerfile in the repo (ls Dockerfile* -> absent).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C09",
+    "code_matches": "yes",
+    "evidence": "ls Dockerfile* -> absent. package.json:5-13 scripts are dev/build/start/lint/postinstall/db:up/db:migrate/db:studio; :12 '\"db:migrate\": \"prisma migrate dev\"' - no 'prisma migrate deploy' anywhere (grep). docker-compose.yml:9-10 'ports: - \"5432:5432\"' (all interfaces), :6-8 POSTGRES_USER/PASSWORD/DB all 'idealog', no healthcheck key in the file. README.md:64-65 says compose 'runs Postgres only' but never marks it dev-only; README has no deployment section.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Scripts block is package.json:5-14, not 6-14; substance unaffected."
+  },
+  {
+    "claim_id": "C10",
+    "code_matches": "partly",
+    "evidence": "package.json:32-38 '\"pnpm\": { \"onlyBuiltDependencies\": [ \"@prisma/client\", \"@prisma/engines\", \"prisma\" ] }'. pnpm-workspace.yaml:1-3 'ignoredBuiltDependencies:\\n  - sharp\\n  - unrs-resolver'. The two files hold two different keys with disjoint package lists.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Build-script config is split across two files (which can drift), but the allowlist itself is not duplicated - package.json has onlyBuiltDependencies while pnpm-workspace.yaml has ignoredBuiltDependencies; 'sharp is ignored' is correct."
+  },
+  {
+    "claim_id": "C11",
+    "code_matches": "partly",
+    "evidence": "src/app/api/auth/register/route.ts:19-25 'const existing = await prisma.user.findUnique({ where: { email } }); if (existing) { return NextResponse.json({ error: \"An account with that email already exists\" }, { status: 409 }); }' - the explicit 409 is exactly at the cited lines. The timing side is in a different file: src/app/api/auth/login/route.ts:19-22 returns 401 before any bcrypt work when the user is unknown, and only :24 'const valid = await verifyPassword(password, user.passwordHash);' runs bcrypt (cost 12 per src/lib/auth.ts:21) for a known email.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "The claim is filed against register/route.ts:20-25, which covers only the 409 half; the timing oracle it describes lives in login/route.ts:19-27."
+  },
+  {
+    "claim_id": "C12",
+    "code_matches": "yes",
+    "evidence": "src/lib/session.ts:40 'const user = await prisma.user.findUnique({ where: { id: session.sub } });' with no select, returning the full User row including passwordHash (prisma/schema.prisma:19). src/app/layout.tsx:28 renders <SiteHeader />, and src/components/site-header.tsx:6 'const user = await getCurrentUser();', so it runs on every page render.",
+    "already_prevented": "partly",
+    "verifiable_by": "tool",
+    "note": "No current response serializes the User object: site-header.tsx:20 renders only user.email, and src/app/api/auth/me/route.ts:8 explicitly selects { id, email, name } - the hash is loaded but not emitted today."
+  },
+  {
+    "claim_id": "C13",
+    "code_matches": "yes",
+    "evidence": "src/app/layout.tsx:21 'export default function RootLayout({ children }: LayoutProps<\"/\">) {' with no import of LayoutProps. grep -rn LayoutProps -> defined only at .next/types/routes.d.ts:66 'type LayoutProps<LayoutRoute extends LayoutRoutes> = {', generated by node_modules/next/dist/build/webpack/plugins/next-types-plugin/index.js. git check-ignore -v .next next-env.d.ts -> '.gitignore:17:/.next/\\t.next' and '.gitignore:42:next-env.d.ts\\tnext-env.d.ts'. tsconfig.json include lists '.next/types/**/*.ts' and 'next-env.d.ts', neither of which exists in a fresh clone.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "On a clean checkout next-env.d.ts is also missing, so a pre-build tsc would report more than the single TS2304."
+  },
+  {
+    "claim_id": "C14",
+    "code_matches": "yes",
+    "evidence": "src/lib/serialize-idea.ts:6-13 'export function serializeIdea(idea: Idea) { return { ...idea, totalScore..., }; }' - the spread carries userId (declared in src/lib/types.ts:5 as part of IdeaDTO) to the client. src/proxy.ts:14-15 'const loginUrl = new URL(\"/login\", req.url); return NextResponse.redirect(loginUrl);' - no next/returnTo param. src/lib/auth.ts:32 'return new SignJWT({ email: payload.email })' and :48 returns it, but the only consumer, src/lib/session.ts:40, looks the user up by session.sub; grep shows no read of session.email.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": "Bundles three unrelated observations (userId in the DTO, lost redirect destination, unread email claim); all three check out."
+  },
+  {
+    "claim_id": "C15",
+    "code_matches": "yes",
+    "evidence": "src/proxy.ts:4 'const PROTECTED_PREFIXES = [\"/ideas\"];' and :21-23 'export const config = { matcher: [\"/ideas/:path*\"], };'. Nothing else is matched - /api/* and /s/[token] never reach the proxy.",
+    "already_prevented": "partly",
+    "verifiable_by": "code-read",
+    "note": "Auth does not depend on the proxy: src/app/ideas/page.tsx:9-10 and the [id] page call getCurrentUser() and redirect, and every /api/ideas* handler calls requireUser() (src/lib/api-auth.ts:5-16); the part about what another reviewer's report contains is not verifiable from the repo."
+  },
+  {
+    "claim_id": "C16",
+    "code_matches": "yes",
+    "evidence": "find src -name error.tsx -o -name global-error.tsx -o -name not-found.tsx -> no results. grep -rn 'try {' src/app/api/ -> none; every Prisma call in src/app/api is unguarded. src/lib/prisma.ts:10 'log: process.env.NODE_ENV === \"development\" ? [\"error\", \"warn\"] : [\"error\"]' is the only logging configuration; no logger module exists. find src/app/api -type d lists auth/{logout,register,me,login}, ideas, ideas/[id]{,/outcome,/share}, share/[token] - no account-deletion or data-export route.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C17",
+    "code_matches": "yes",
+    "evidence": "src/lib/scoring.ts:22-26 totalScore, :28-39 hindsightTotal, :41-47 scoreDelta. find for *.test.*, *.spec.*, vitest.config.*, jest.config.* (excluding node_modules/.next) -> no results; package.json:5-13 has no test script. These functions feed the ranking sort (src/app/api/ideas/route.ts:23-25, src/app/ideas/page.tsx:17-19) and calibration (src/lib/calibration.ts:15,29).",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C18",
+    "code_matches": "partly",
+    "evidence": "src/lib/auth.ts:40-52 verifySessionToken: ':45-47 if (typeof payload.sub !== \"string\" || typeof payload.email !== \"string\") { return null; }' and ':49-51 } catch { return null; }'. getSecretKey's throw is at src/lib/auth.ts:9-11, outside the cited 36-52 range (36-39 is the tail of createSessionToken). No test files or test script exist anywhere in the repo.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": "Substance is correct - both behaviours are untested - but the cited line range 36-52 does not contain getSecretKey's throw, which is at auth.ts:10."
+  },
+  {
+    "claim_id": "C19",
+    "code_matches": "yes",
+    "evidence": "src/lib/auth.ts:44 'const { payload } = await jwtVerify(token, getSecretKey());' - no third options argument, so no algorithms/issuer/audience pinning. src/lib/auth.ts:32-37 never calls setIssuer/setAudience either. The email claim is read back at :45-48 but src/lib/session.ts:40 looks the user up by session.sub only, never comparing the claim to the DB row.",
+    "already_prevented": "partly",
+    "verifiable_by": "judgment",
+    "note": "getSecretKey (auth.ts:12) returns a Uint8Array, and jose restricts a symmetric key to HMAC algorithms, so the classic alg-confusion (RS256/none) attack is not available here; iss/aud are moot in a single-issuer app."
+  },
+  {
+    "claim_id": "C20",
+    "code_matches": "yes",
+    "evidence": "src/lib/auth.ts:5 'const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days' used at :36 setExpirationTime and src/lib/session.ts:20 maxAge. src/lib/session.ts:24-27 'export async function clearSessionCookie() { const store = await cookies(); store.delete(SESSION_COOKIE); }' - the only logout action; src/app/api/auth/logout/route.ts:4-7 just calls it. No session/token table in prisma/schema.prisma and no denylist anywhere. find src/app/api -type d shows no password-reset, change-password or verify route.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C21",
+    "code_matches": "yes",
+    "evidence": "grep -rn 'try {' src/app/api/ -> none (the only .catch calls are on req.json(): register:8, login:8, ideas:34, outcome:17, [id]:28, share:18). find src -name error.tsx -o -name global-error.tsx -o -name not-found.tsx -> no results. find src/app/api -type d shows no health/ready endpoint. src/lib/prisma.ts:10 is the only log configuration; no monitoring/APM import anywhere.",
+    "already_prevented": "no",
+    "verifiable_by": "tool",
+    "note": ""
+  },
+  {
+    "claim_id": "C22",
+    "code_matches": "yes",
+    "evidence": "src/app/api/share/[token]/route.ts:13-14 'const idea = await prisma.idea.findUnique({ where: { shareToken: token } }); if (!idea) return NextResponse.json({ error: \"Not found\" }, { status: 404 });' and :16-36 the explicit field list (title, description, status, four scores, totalScore, outcome, outcomeRecordedAt, four hindsight scores, hindsightTotal, delta, createdAt) - id, userId and shareToken are not included. A revoked token means shareToken: null (share/route.ts:43), so findUnique misses and the same 404 fires. No test files or test script exist in the repo.",
+    "already_prevented": "partly",
+    "verifiable_by": "tool",
+    "note": "The current handler already omits the sensitive fields and 404s correctly; what is missing is the test that would keep it that way."
+  },
+  {
+    "claim_id": "C23",
+    "code_matches": "yes",
+    "evidence": "docker-compose.yml:9-10 'ports:\\n      - \"5432:5432\"' - a fixed host port with no ${PORT} indirection and no override file in the repo.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  },
+  {
+    "claim_id": "C24",
+    "code_matches": "partly",
+    "evidence": "pnpm-lock.yaml confirms the path: line 4061 'prisma@6.19.3(typescript@5.9.3): dependencies: '@prisma/config': 6.19.3', line 2562-2565 ''@prisma/config@6.19.3': dependencies: ... deepmerge-ts: 7.1.5', and line 1028/3093 'deepmerge-ts@7.1.5: {}'. package.json:21 '\"prisma\": \"6.19.3\"' sits in the dependencies block (package.json:15-25), not devDependencies. pnpm audit was not run (it needs network and was out of scope), so the advisory id GHSA-ggr8-5vv4-36mx and its severity could not be confirmed from the repo.",
+    "already_prevented": "no",
+    "verifiable_by": "unverifiable",
+    "note": "The dependency version, path and the prisma-in-dependencies placement are all confirmed from the lockfile; the advisory identifier and severity cannot be checked offline."
+  },
+  {
+    "claim_id": "C25",
+    "code_matches": "yes",
+    "evidence": "src/app/s/[token]/page.tsx:51 '<p className=\"mt-2 whitespace-pre-wrap text-sm text-muted\">{idea.description}</p>' and :78 '<p className=\"mt-3 whitespace-pre-wrap text-sm\">{idea.outcome}</p>' - plain JSX interpolation, no dangerouslySetInnerHTML anywhere in src. src/lib/validation.ts:23 'description: z.string().trim().max(5000).optional().default(\"\")' and :42 'outcome: z.string().trim().min(1).max(5000)'. Sharing is self-serve: POST /api/ideas/[id]/share:21-27 mints a nanoid(24) token with no review step.",
+    "already_prevented": "partly",
+    "verifiable_by": "judgment",
+    "note": "React escaping does rule out the XSS half; whether self-serve public text hosting counts as an abuse surface is a product judgment, not a code fact."
+  },
+  {
+    "claim_id": "C26",
+    "code_matches": "yes",
+    "evidence": "src/lib/validation.ts:30-38 ideaUpdateSchema accepts title, description, status, differentiation, evidence, cost, reversibility - all optional, with no guard on the idea's current status or outcome. src/app/api/ideas/[id]/route.ts:37-40 writes it straight through: 'await prisma.idea.update({ where: { id }, data: parsed.data, })'. src/components/idea-detail.tsx:119-123 renders the Edit button unconditionally in the non-editing branch, and :141-148 exposes the four ScorePickers. Calibration reads those same prediction fields: src/lib/calibration.ts:20-22 '(hindsight ?? predicted) - predicted'.",
+    "already_prevented": "no",
+    "verifiable_by": "code-read",
+    "note": ""
+  }
+]
