@@ -7,7 +7,7 @@ the subject application.
 
 | Repository | Role | Holds | Visibility |
 | --- | --- | --- | --- |
-| `idea-log` | **The specimen.** Frozen, sealed, never worked in by anyone. | The generated application at `v0-raw` | Private until publication |
+| `idea-log` | **The specimen.** Frozen, sealed, never worked in by anyone. | The generated application at `v0-raw` | Public as of 2026-09-19, so verdicts can be checked against the source |
 | `idea-log-armA` | Working copy for the single general reviewer | Identical tree, own history | Private until publication |
 | `idea-log-armB` | Working copy for the swarm | Identical tree, own history | Private until publication |
 | `Five-Critics-or-One-Good-Prompt` | **The study.** Not code under test. | Protocol, specification, predictions, baseline output, raw reports, findings, notebook, this file | Public from the start |

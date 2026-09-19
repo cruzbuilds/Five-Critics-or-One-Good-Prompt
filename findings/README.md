@@ -67,3 +67,53 @@ zero.
 | Method | `PROTOCOL.md` | Frozen once the first review runs. Changes go in the deviation log. |
 
 The layers do not mix. Analysis never edits evidence. Narrative never edits either.
+
+## For reviewers: where the verdicts actually are
+
+If you were sent here to check my scoring, start with this section. It is an honest map, not the tidy
+one the tables above describe.
+
+**`verdicts.csv` and `LEDGER.md` are empty.** Adjudication happened, but it happened in JSON. The
+plan said one CSV; the work produced three evidence files. I am not backfilling the CSV to match the
+plan, because that would be a rewrite of the record. The files that hold the judgments are:
+
+| File | What it holds |
+| --- | --- |
+| `adjudication-key.json` | The 77 distinct claims after de-duplication. For each: `claim_id`, title, domain, severity as reported, file and line, description, and `seen`, the list of (arm, condition, run) where it appeared. This is the only file that says which arm found what. |
+| `evidence-01.json`, `evidence-02.json`, `evidence-03.json` | One verdict per claim, checked against the frozen commit `b38c5b0` of `idea-log`. Fields: `claim_id`, `code_matches` (`yes`, `partly`, `no`), `already_prevented` (`yes` or `no`), `verifiable_by` (`tool` or `read`), `evidence` (the actual grep, command or file:line trail), `note`. |
+| `adjudication-blind.json` | The same 77 claims with the arm stripped. This is what the verdicts were written against. |
+| `reconciled.json`, `reconciled-summary.txt` | The merge of duplicate slugs across arms. If you think two claims are the same defect or two different ones, this is where that call was made. |
+| `armA-raw.csv`, `armB-raw.csv`, `armA-tools-raw.csv`, `armB-tools-raw.csv` | Raw extraction from the twelve reports, before de-duplication. |
+
+The verdict rules, fixed before scoring:
+
+- `yes`: the code is as the claim describes.
+- `partly`: the problem is real but something in the claim is wrong, usually the line or one half of a
+  bundled claim.
+- `no`: the premise is false.
+- `already_prevented: yes`: true of the named file, but another part of the system blocks the failure.
+  Counted as a false positive under the strict definition in `ANALYSIS.md`, counted as true under the
+  lenient one. Both are reported.
+
+**What I am asking you to check.** Pick claims, open the source at `b38c5b0`, and decide whether the
+verdict is right. The one that matters most is **C26**: a user can change an idea's original scores
+after its outcome has been recorded, which corrupts the calibration view the product exists to show.
+It is one PATCH handler and one schema. If that verdict is wrong, the paper's main finding is wrong.
+
+**What I am not asking.** Whether five agents is a good idea, whether the test reviewer's thirteen
+items should count as one, or whether the prompt in `prompts/arm-a.txt` was fair. Those are argued in
+`ANALYSIS.md` and I would rather hear them after you have read it.
+
+**How to report a disagreement.** One line per claim, in this shape:
+
+```
+C26, partly, line is 41 not 38, otherwise as described
+```
+
+Claim ID, your verdict, one reason. Send it however you like. Each one becomes a row in
+`corrections.csv` with your name or handle as `raised_by`, and the paper reports the count.
+
+**One more ask, before you read `prompts/arm-a.txt`.** Write the one-sentence prompt you would give a
+reviewer if nobody had told you what to look for. Send it with your disagreements. The largest
+confound in this study is that the single reviewer's prompt was written by the person who built the
+swarm. Prompts from people who were not are the fix.
