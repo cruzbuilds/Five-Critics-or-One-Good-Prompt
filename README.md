@@ -18,8 +18,9 @@ If that is right, then the useful question is not whether AI can write good code
 direction turns what it does into something a person can verify. This study measures one version of
 that question.
 
-Status: **the subject is built and frozen, no reviews have run yet.** Results are not in. Nothing here
-concludes anything.
+Status: **Experiment 001 is closed.** Fifteen reviews ran across three arms and two conditions, 79
+distinct claims were checked against the frozen code, and the write-up is in [`ANALYSIS.md`](ANALYSIS.md).
+The short version is below. The original hypothesis did not survive, and that is the result.
 
 ---
 
@@ -36,6 +37,83 @@ anything real.
 It can lose, and here is how: if five charters produce no more valid findings than one strong prompt,
 then a paragraph of direction is enough, my charters are over-engineering, and I will say exactly that
 here. I wrote that commitment down before running anything.
+
+---
+
+## What happened
+
+I started with a simple hypothesis: five narrow reviewers, each with deeper instructions inside its
+own domain, should beat one general reviewer. I sealed five predictions about that before anything
+ran. Four failed and one half held.
+
+Three arms, in the end. **A**, one strong 170-word prompt that names every domain. **B**, the swarm.
+**C**, added after I had seen A and B, twenty-four words with no domain map: "Review this repository
+as if it were about to go into production. Find anything you think should be fixed or investigated
+before it ships." Same frozen commit, same model, three runs each.
+
+| | C, goal only | A, one good prompt | B, five critics |
+| --- | --- | --- | --- |
+| Confirmed defects, all domains | 30 | 38 | 38 |
+| Precision | 81% | 81% | 79% |
+| Found all four merge-blocking defects, every run | yes | 3 of 4 every run | 2 of 4 every run |
+| Found the calibration defect | 3 of 3 | 5 of 6 | 0 of 6 |
+| Noticed there are no tests | 3 of 3, as one item | 6 of 6, as one item | 6 of 6, as thirteen |
+| Security | 11 | 11 | 7 |
+| Correctness | 10 | 11 | 3 |
+| Found the same thing every run | 60% | 44% | 66% |
+| Per-agent record of what was checked and what was not | no | no | every run |
+
+**The swarm did not win on defect discovery.** It tied the strong generalist and both beat the naive
+one by eight moderate and hygiene items, none of them serious. Do not read this repository as
+evidence that five critics find more bugs. They did not.
+
+**The naive prompt was the surprise.** Twenty-four words found every merge-blocking defect in every
+run, investigated security without being told to, ran the build and the linters, and wrote a probe
+to prove a bcrypt truncation. Most of what I thought the engineered prompt was doing, the model was
+already doing.
+
+**The swarm's real product is not counts.** It is the test reviewer turning "there are no tests" into
+thirteen module-level items with the assertions to write, all thirteen every run. And it is the
+inspection record: which agent checked what, which tools ran and which failed, which files were not
+read, where two agents disagreed, and what was noticed but owned by nobody. Nothing else in the
+study produced that. It is assurance evidence. It is not the same thing as a better review.
+
+**The blind spot cost the most important finding.** The subject lets a user rewrite an idea's
+original scores after the outcome is recorded, which silently falsifies the calibration view the
+whole product exists to show. Both generalists found it. Inside the swarm, an agent noticed it in two
+runs and the merged report filed it under "Handoffs nobody picked up: no agent in the roster owns
+this." The model saw it. The architecture had nowhere to put it. That is a design failure, not a
+model failure, and it is mine.
+
+**The security specialist lost its own lane, twice.** Both generalists found 11 security defects to
+the specialist's 7, one of them without any instruction to look at security. I do not know why.
+Hypotheses are in the analysis; none of them was tested.
+
+**Tools barely mattered, because there was nothing to run them on.** No tests, no infrastructure
+code, no CI. That is a limit of this subject, not a finding about tools.
+
+**What direction bought, in the end:** breadth in lanes nobody thinks to check, a decomposed work
+list, and a record of what was checked. Those are evidence artifacts. They are not detection. The
+capability to find the worst defect and notice the absent tests was there at zero direction.
+
+The full accounting, including every number's provenance and every place I was wrong earlier in the
+analysis, is [`ANALYSIS.md`](ANALYSIS.md), sections 1 through 13. Section 13 is the closing
+interpretation.
+
+## What comes next, and has not happened
+
+Experiment 001 changed the architecture. The swarm as built rejects a general reviewer on purpose
+([ADR 0004](https://github.com/cruzbuilds/agentic-review-swarm/blob/main/docs/decisions/0004-no-general-code-reviewer.md)).
+The data says that is where the most consequential finding went to die.
+
+The V2 hypothesis, and it is only a hypothesis: one broad whole-system reviewer plus the specialists,
+with an arbiter that deduplicates, reconciles, keeps specialist evidence, and keeps unowned broad
+findings as findings with a severity. The rule that changes is that an important finding must never
+disappear because it does not fit a lane.
+
+Experiment 002 would compare a naive generalist, a strong generalist, the V1 swarm and V2 on a
+subject that has real tests, CI, infrastructure code and business logic. It has not been designed
+past that paragraph and it has not run. Section 13.6 of the analysis says what it should look like.
 
 ---
 
@@ -102,13 +180,17 @@ changes mid-study, the study restarts or each version is reported separately.
 
 ## What the experiment is
 
-One application, generated fast from a single paragraph, frozen. Two ways of reviewing it:
+One application, generated fast from a single paragraph, frozen. Three ways of reviewing it:
 
 - **Arm A**: one general reviewer, one strong prompt, no roles.
 - **Arm B**: the swarm, five narrow reviewers, merged into one verdict.
+- **Arm C**: one general reviewer, two sentences, no domain map. Added after A and B had run and
+  been analysed; labeled that way everywhere it appears (`DEVIATIONS.md`, D-005).
 
-Same commit, same model, same day, three runs each, neither seeing the other's output. Then I mark
-every finding real or not, count what each one found and missed, and publish the lot.
+Same commit, same model, three runs each, none seeing another's output. A and B ran twice over, once
+with their tools silently denied by my own harness bug (D-003, D-004) and once with tools working.
+Both conditions are reported. Then I marked every claim real or not against the code, counted what
+each arm found and missed, and published the lot.
 
 ## What I did to keep myself honest
 
@@ -125,8 +207,9 @@ before either arm ran. They can be wrong and they will stay there if they are.
 
 **I score blind, arm A first.** Labels stripped, arm A's whole list scored before I open arm B's.
 
-**A second judge that is not me.** Adjudication runs again on a different model than the reviewers,
-its verdicts publish beside mine, and the disagreement rate is a result I report.
+**A second judge that is not me.** Registered: adjudication runs again on a different model than the
+reviewers and the disagreement rate is published. Status at close: not run. The verdicts stand as one
+judge's, the evidence for each is in `findings/`, and outside reviewers have been asked to check them.
 
 **Verdicts are open and versioned.** If you think I scored something wrong, say so. I will change it
 and log the change. I am not hiding the data, so you do not have to take my word for any of it.
@@ -142,10 +225,12 @@ the swarm is unnecessary and I will have spent a month of evenings learning some
 | [`PREDICTIONS.md`](PREDICTIONS.md) | What I predicted, sealed before any review |
 | [`PROTOCOL.md`](PROTOCOL.md) | The method. Locked once the first review runs; every change after that is logged |
 | [`APP-SPEC.md`](APP-SPEC.md) | The specification the reviewers are judged against. The builder never saw it |
-| [`PROVENANCE.md`](PROVENANCE.md) | Four repositories, one commit hash, shown not claimed |
+| [`PROVENANCE.md`](PROVENANCE.md) | Four repositories, one commit hash, shown not claimed. The frozen subject is public at [`idea-log`](https://github.com/cruzbuilds/idea-log) so every verdict can be checked |
 | [`ARM-A-PROMPT.md`](ARM-A-PROMPT.md) | Arm A's prompt, verbatim, plus why it is not a strawman |
 | [`findings/`](findings/) | The evidence layer: findings, verdicts, corrections, and the adjudication ledger. Append-only, enforced by `scripts/check-append-only.sh` |
-| [`reports/`](reports/) | Raw review output, unedited, plus per-run cost and timing. Empty until the runs happen |
+| [`ANALYSIS.md`](ANALYSIS.md) | The analysis, sections 1 to 13, written in the order the thinking happened and not rewritten. Section 13 closes the experiment |
+| [`DEVIATIONS.md`](DEVIATIONS.md) | Every change from the registered protocol, D-001 to D-005, with why and what it risks |
+| [`reports/`](reports/) | All fifteen raw reports, unedited: A1 to A3 and B1 to B3 in each condition, C1 to C3, plus the C event streams and `runs.csv` |
 | `baseline/` | Raw output from every free scanner, run once against the frozen commit |
 | `sessions/` | What happened in each session, with every prompt and answer |
 
@@ -181,14 +266,21 @@ One thing on the other side of the ledger: everything it claimed that a tool cou
 `tsc`, eslint and `next build` are clean exactly as promised. It overstated only the thing no tool
 checks, which is probably not a coincidence.
 
-Whether either reviewer notices is the sharpest thing I predicted, and my guess is on the record.
+Whether either reviewer notices was the sharpest thing I predicted. My guess was that a general
+reviewer would not. It did, nine times out of nine across two arms, and my guess is still on the
+record.
 
 ## What this will not tell you
 
 One app, one stack, one model, one author. Three runs per arm describes stability, not statistics, and
-I make no statistical claim. No seeded defects, so anything both arms missed is invisible to me. The
-the swarm's scope agent needs a scope document and this repository has none, so only four charters do
-substantive code-review work here.
+I make no statistical claim. No seeded defects, so anything every arm missed is invisible to me. The
+swarm's scope agent needs a scope document and this repository has none, so only four charters do
+substantive code-review work here. The swarm was built as a pull-request gate for repositories with
+engagement documents and decision records, and this study pointed it at a whole freshly generated
+repository with neither, so it was tested on the kind of subject it was least built for. Arm C is
+one naive prompt, written by someone who had seen the results; it is one draw, not a population. The
+second judge the protocol registered has not run, so the verdicts are one judge's, and they are open
+for anyone to dispute in `findings/`.
 
 On the name: "five critics" is still fair. The fifth critic is part of the system under evaluation,
 and the fact that it cannot operate without scope artifacts is a result rather than an exclusion. A

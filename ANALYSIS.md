@@ -740,3 +740,221 @@ the swarm produces those, and they are the swarm's real product. "Finds more bug
 - Runs were parallel, three at once on one machine, and on overage billing per the harness's own
   rate-limit events. Wall time is not comparable to A/B.
 - Same subject, same model, same week. Nothing here generalises.
+
+---
+
+# 13. Closing Experiment 001
+
+**Written 2026-09-19 after a full re-read of the repository: `PROTOCOL.md`, `PREDICTIONS.md`,
+`DEVIATIONS.md`, all fifteen reports, `findings/`, the value rubric, `reports/runs.csv`, and the
+swarm's charters, contract and decision records. Sections 1 through 12 above are left as written,
+in the order they were written. This section is the final interpretation. Where it disagrees with
+an earlier section, this one is the one to cite, and the earlier one is the record of what I thought
+before I had all the data.**
+
+## 13.1 The hypothesis, and what happened to it
+
+The protocol registered H1: the role-specialized swarm identifies more valid defects across more
+quality domains than the single-agent reviewer, with precision within ten points. The reasoning was
+simple. Several narrow reviewers should beat one general reviewer because each specialist gets
+deeper instructions inside its domain.
+
+The data does not support H1. Precision held, within two points. "More valid defects" did not: the
+swarm and the strong generalist tied at 38 strict true positives. "Across more quality domains" did
+not: the generalist produced true positives in eight domains, the swarm in six.
+
+H0 as written, no meaningful improvement in valid findings, domain coverage, or actionability, is
+not what happened either. Actionability improved, sharply, in one domain. What the data supports is
+narrower than either hypothesis and more useful than both: different review structures produce
+different kinds of evidence.
+
+The protocol's own bar for "worth its cost" was at least five valid findings the single agent
+missed, across at least two domains. The swarm cleared it: 24 strict true positives the generalist
+did not find, across four domains. The generalist cleared the same bar in the other direction: 24
+across five domains. The criterion did not anticipate symmetry.
+
+The protocol's disqualifier was that missing a critical the other condition caught gets reported in
+the abstract regardless of totals. That applies, and it applies to the swarm. Finding 4 below.
+
+## 13.2 The findings
+
+**Finding 1. Overall defect discovery did not favor the swarm.** Strict true positives across all
+domains: strong generalist 38, swarm 38, naive generalist 30. Precision 81%, 79%, 81%. The swarm is
+not broadly superior at defect detection on this subject, and this write-up does not say it is.
+
+**Finding 2. A naive generalist was more capable than anyone here predicted.** Twenty-four words,
+no domain map, no output format, no instruction to look for absences. It found all four high-value
+defects in all three runs, the calibration defect in 3 of 3, the missing test suite in 3 of 3, 11
+security true positives (equal to the strong generalist), 10 correctness true positives, and it
+investigated security, ran the linters and build, and wrote a bcrypt probe without being asked. 60%
+of its true positives recurred in every run.
+
+This changes how arm A should be read. Section 9b argued that arm A did well because its prompt was
+the swarm's charters compressed by the swarm's author. Arm C shows that most of the high-value
+capability was in the model before any prompt was written. The 170-word prompt added breadth in
+moderate and hygiene findings. It did not add high-value discovery.
+
+**Finding 3. The swarm's strongest advantage was specialization within testing, and it needs to be
+stated at two levels.** At the atomic level: 13 test true positives against one from each
+generalist, every one of the swarm's naming a module and the assertions to write, all thirteen found
+in every swarm run. At the root-cause level: all three approaches recognized the same condition,
+that there is no meaningful test suite, and the generalists said so once and moved on. The
+specialist converted that one observation into a work queue. That is evidence for specialist depth
+and actionability. It is not evidence of thirteen independent root defects, and a reader who counts
+it as one finding gets shared-scope parity between the swarm and the strong generalist (22 to 23).
+
+**Finding 4. Specialist boundaries produced a structural blind spot, and it cost the most important
+finding.** The swarm has no correctness reviewer by decision (ADR 0004: "if a real gap shows up that
+none of the specialized agents cover, that's the signal to write a new specialized agent for that
+gap"). The most consequential defect in the subject, predictions remaining editable after outcomes
+are recorded so that the calibration view can be silently falsified (C26), was found by arm A in 5
+of 6 runs and by arm C in 3 of 3. Inside the swarm, `test-reviewer` noticed it in two runs and the
+merged report placed it under "Handoffs nobody picked up" with the note "no agent in the roster owns
+this." It was never a finding with a severity and a verdict.
+
+This is an architecture-induced coverage gap, not a model capability failure. The model saw it. The
+lane structure had nowhere to put it, and the contract's answer to that situation, report it as
+unowned so a human sees it, is correct as far as it goes and still lost the finding from every count
+the swarm produces. The same reports show the handoff mechanism working as designed in the other
+direction: `test-reviewer` also flagged an enumeration leak and a missing test-run instruction that
+`security-reviewer` and `docs-reviewer` had not reported. Cross-agent noticing works. Ownership is
+what fails.
+
+**Finding 5. Generalists beat the security specialist in its own lane, twice.** Security strict true
+positives: strong generalist 11, naive generalist 11, security specialist 7. One generalist was told
+to check security and one was not, and both out-found the agent with the security charter and
+gitleaks. This is no longer a curiosity, and I do not know why. Hypotheses, not conclusions: the
+security charter is checklist-shaped and the checklist did not fit this application; application
+security rewards whole-system context that a single lane does not have; the lane restriction
+suppresses cross-domain security reasoning (the enumeration leak in B1.2 was noticed by the test
+reviewer, not the security reviewer); or this repository simply favors broad reasoning. Any of those
+is testable and none of them was tested here.
+
+**Finding 6. The swarm was the most structured and the most repeatable, and it produced the only
+inspection record.** Tools condition, share of true positives seen in all three runs: strong
+generalist 44%, swarm 66%, naive generalist 60%. The swarm also produced, in every run, a per-agent
+account of which reviewer checked which domain, which tools ran and which failed, which files and
+context were not examined, where two agents disagreed, and what was noticed but unowned. Neither
+generalist produced that. Arm C produced something smaller and unprompted: a one-line statement at
+the top of every report of what it had not done. The swarm's record is review observability,
+assurance evidence, an inspection record. It is a meaningful product property even where the defect
+totals tie. It is not the same thing as a better review, and this write-up keeps those two claims
+apart.
+
+**Finding 7. More prompting did not improve the most important findings.** Arm A's 170 words
+produced eight more strict true positives than arm C's 24. None of the eight was high-value. Both
+arms had the same strict precision. C was more repeatable. A's reports were roughly twice as long.
+C already found every high-value defect in every run. On this subject, with this model, prompt
+engineering beyond the goal statement showed diminishing returns. Stated narrowly: this repository,
+this model, one naive prompt. It does not generalize past that.
+
+**Finding 8. Tools were not meaningfully tested by this subject.** Tool access changed coverage by a
+handful of findings in each direction and produced one tool-dependent true positive, the audit
+advisory already in the baseline. The subject has no tests to run, no infrastructure as code, no CI,
+and little deployment surface, so three of five specialist tools had nothing to operate on and
+`checkov` could not reach its own update server. The conclusion is that tools had little effect on
+this repository. It is not that tools do not help AI review.
+
+**Finding 9. The subject favored some swarm lanes and starved others.** The swarm was designed as a
+change gate for pull requests against a repository with engagement documents and decision records.
+Experiment 001 pointed it at an entire freshly generated repository with neither. `scope-reviewer`
+had nothing to check against and returned PASS. `infra-reviewer` had a `docker-compose.yml` and
+nothing else. `test-reviewer` reviewed absence rather than a suite. This is not an excuse for the
+results; every arm reviewed the same repository. It is an external-validity limit: Experiment 001
+tested this architecture on one kind of repository, and it is the kind the architecture was least
+built for.
+
+## 13.3 The predictions
+
+Sealed at `9e2155d`. Graded against the A/B data they were about; arm C is not part of the grading.
+
+| # | Prediction | Result |
+| --- | --- | --- |
+| 1 | Swarm finds more in every category | Failed. Generalist won security, dependencies, correctness. |
+| 2 | Single review misses a critical the swarm catches | Failed, and the reverse happened. |
+| 3 | Biggest gap is documentation, then security | Half. Documentation was the swarm's second-biggest lead. Security inverted. Tests, which I did not name, was the biggest gap. |
+| 4 | Swarm precision higher | Failed. Equal within noise. |
+| 5 | Single reviewer does not flag the missing test suite | Failed, 6 of 6. Arm C then failed it again, 3 of 3, without an instruction to look for absences. The prediction was wrong about the model. |
+
+Four failed, one half held. The prediction I called the sharp one, the one I said would be the
+cleanest illustration of what charters buy, is the one that failed most completely.
+
+## 13.4 The final interpretation
+
+The question this study started with was: five critics or one good prompt, which one wins? That is
+the wrong question and the data says so.
+
+Different review structures produce different kinds of evidence. The generalist, prompted or not,
+was strong at whole-system reasoning and at the high-value cross-cutting defects, and found the one
+that mattered most every time. The specialist swarm was strongest where a narrow reviewer could
+systematically decompose a domain, testing above all, and it produced an explicit assurance record
+that nothing else in the study produced. Pure specialist parallelization also created blind spots
+when an important finding crossed lanes or fell between them, and the swarm's own design decision
+about what to do with such findings, hand them to nobody, is where the most consequential finding in
+the study went.
+
+The thesis of the paper was that direction is what converts capability into evidence. That held,
+but not the way I expected. The capability to find the worst defect and to notice the absent tests
+was there at zero direction. What direction produced was coverage of lanes nobody thinks to check, a
+decomposed work list, and a record of what was checked and what was not. Those are evidence
+artifacts. They are not detection.
+
+The most interesting result of Experiment 001 is that it changed the architecture.
+
+## 13.5 V2: a hypothesis, not a result
+
+**This section is a design hypothesis motivated by Experiment 001. It is not supported by any
+experimental evidence yet. Nothing below has been built or measured.**
+
+The hypothesis: pure specialist parallelization is insufficient for comprehensive AI code review. A
+hybrid that combines one broad whole-system review with targeted specialist reviewers may preserve
+cross-cutting reasoning while keeping the depth, repeatability, actionability and auditability that
+specialization produced here.
+
+Conceptually:
+
+1. **Broad systems review.** One reviewer with the whole repository and no lane. Owns whole-system
+   correctness, business invariants, cross-file interactions, emergent behavior, and anything that
+   belongs to nobody else.
+2. **Specialist reviewers**, in parallel where the subject allows it. Tests, security,
+   infrastructure, documentation, scope. Unchanged in principle from V1; charters, seeds, tools.
+3. **Arbiter.** Deduplicates across all reviewers, reconciles conflicts, preserves specialist
+   evidence, preserves unowned broad findings as findings with a severity and a verdict, and produces
+   the final assurance record.
+
+The one rule that changes: **an important finding must never disappear because it does not fit an
+existing specialist lane.** "Handoffs nobody picked up" stops being a terminal state.
+
+This reverses ADR 0004, which rejected a general reviewer because it "has no lane" and would bury
+the one thing only it noticed under twenty things everyone noticed. Experiment 001 is the evidence
+that decision was made against: the thing only the generalist noticed was the most important finding
+in the study, and the arbiter, not the lane rule, is the proposed answer to the burying problem.
+Whether it works is the next experiment's question.
+
+## 13.6 Experiment 002: future work, not started
+
+**Experiment 002 has not happened. Nothing here is a result.**
+
+It should compare V1 and V2 on a subject that actually contains existing automated tests, CI/CD,
+infrastructure and deployment configuration, documentation, and meaningful application logic, so
+that the test and infrastructure specialists are measured on reviewing what exists rather than
+noticing what is missing, and the tools have something to run against.
+
+The research question: does a hybrid broad-plus-specialist architecture recover the cross-cutting
+defects missed by strict specialist lanes while preserving the swarm's depth, repeatability,
+actionability and assurance evidence?
+
+A possible design: four arms, naive generalist, strong generalist, V1 specialist swarm, V2 hybrid.
+Predictions sealed before any run, including the ones I now expect to be wrong. Cold naive prompts
+from people who have not read this repository, so that the naive arm is a population and not one
+draw. The actionability and documentation-quality rubrics registered in `PROTOCOL.md` applied to
+every finding, since they were registered for Experiment 001 and never used. A second judge on a
+different model, which this experiment registered and did not run. Report length and cost recorded
+for every arm from the harness, as arm C was and A and B were not.
+
+## 13.7 What this is
+
+A personal engineering experiment. One application, one model, one author, one week, three runs per
+condition. Nothing in it is a claim about multi-agent systems in general. The original hypothesis
+did not survive contact with the data, and the architecture that came out of it is not the one that
+went in. That is the result.

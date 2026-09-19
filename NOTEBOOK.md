@@ -225,3 +225,34 @@ cannot pretend I expected it.
 
 Things I will not do: read C1 before C3 exists, rerun a run I do not like, or change the
 de-duplication rules to make C's findings line up with A's and B's.
+
+## Day 3, later: closing it
+
+Arm C ran. Three times, 28 claims each time, every merge-blocking defect every time, including the
+calibration one. It ran the build and the linters and wrote a bcrypt probe without being told to. It
+said "there are no tests" three times out of three. Twenty-four words.
+
+So the sentence I ended the re-analysis on, that arm A only did well because I handed it the map,
+turned out to be half wrong. The map was worth eight moderate and hygiene findings and cost some
+consistency. The rest was the model.
+
+That is the end of Experiment 001. I went in believing five specialists would beat one generalist
+because each one gets deeper instructions. They tied, the naive prompt was close behind, and the one
+finding I would most want a reviewer to catch went into the swarm's "nobody owns this" bucket twice
+and never came out. I wrote the rule that put it there. ADR 0004, no general reviewer, because a
+general reviewer has no lane. It turns out the finding that matters most is the one with no lane.
+
+What the swarm actually does well is not what I built it to do. It decomposes. It turns "no tests"
+into thirteen things a developer can start on tomorrow. It writes down what it checked, what it
+could not run, what it did not read, and where two agents disagreed. That record is the thing a
+customer who says "we can't trust the output" would actually want to see. It is not more bugs.
+
+Four of five predictions failed. The one I called sharp failed hardest. That all stays in
+`PREDICTIONS.md` as sealed.
+
+V2 is a hypothesis: a broad reviewer next to the specialists, and an arbiter so that nothing
+important disappears for lack of a lane. It reverses a decision I was proud of a week ago. It has
+not been built and it has not been tested, and Experiment 002 is a paragraph, not a plan.
+
+The most interesting result is that the experiment changed the architecture. I would rather have
+that than have been right.
