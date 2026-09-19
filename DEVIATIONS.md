@@ -115,3 +115,49 @@ to run one command and checks the output, so a silently-denied shell cannot happ
 `reports/runs.csv`. A reader can object that the swarm under test is not identical across conditions;
 the answer is that the condition-1 version could not run tools by construction, so there was no way to
 hold it constant and change the variable.
+
+## 2026-09-19, D-005: a third arm is added after the A/B results were observed
+
+**What was registered.** Two arms. A: one strong general prompt. B: the specialist swarm. Five
+predictions about A against B, sealed at `9e2155d`.
+
+**What changed.** A third arm, C, is added. One general review instruction with no domain map, run
+three times under the tools condition, same frozen subject, same model, same permissions as A*.2 and
+B*.2. The whole prompt is `prompts/arm-c.txt`, two sentences, 24 words.
+
+**Why.** The re-analysis (`ANALYSIS.md`, section 9b) found that arm A's prompt is the swarm's five
+charters compressed into a paragraph, plus correctness, written by the swarm's author. That makes A a
+strong baseline and a strange one: it compares five agents holding the map against one agent handed
+the map. The comparison a developer actually makes is against "take a look at this before I ship
+it." Arm C is that.
+
+**What this is and is not.** Arm C is exploratory follow-up evidence. It was designed after the A/B
+results were known, by someone who knows what A and B found, which domains mattered, and that tests
+and correctness were the interesting lanes. It is **not** part of the preregistered comparison and no
+prediction in `PREDICTIONS.md` is about it. The predictions are not rewritten. The A/B adjudications
+are not touched. The result of C, whatever it is, is reported in its own section of `ANALYSIS.md`
+under that label.
+
+**Guards against contamination.** The reviewer runs in a fresh scratch clone of the sealed `idea-log`
+at `v0-raw`, containing the repository and nothing else: no study repo, no reports, no findings, no
+other arm's prompt. `scripts/run-arm-c.sh` refuses to run if the prompt file has grown past forty
+words, if the subject is not at `v0-raw`, or if a report with that number already exists. The
+reviewer gets one message and no follow-up.
+
+**What the design knowledge could still leak through.** The prompt was written by the same people
+who know the results. It was written to be as plain as possible and it names nothing, but "as if it
+were about to go into production" is itself a choice, and a different plain sentence might steer
+differently. That is one prompt, not a population of naive prompts. Reviewers of this study have been
+asked for their own cold one-sentence prompts; if those get run, they go in as further arms with
+their own deviation entries.
+
+**Recording.** Arm C runs capture the full event stream (`reports/C*.stream.jsonl`) as well as the
+final text (`reports/C*.md`), so tool calls, failed tool calls, tokens and cost are recorded from the
+harness rather than estimated. A and B did not have this; their `runs.csv` rows leave those columns
+blank. That is a difference in instrumentation, not in what the reviewer could do.
+
+**Normalization.** C's claims are extracted and de-duplicated by the same rules as A and B, only
+after all three runs exist, and its raw wording is preserved as written. Nothing in the rules changes
+to fit C. Where a C claim matches an existing A/B claim, it inherits the existing verdict; the
+existing verdict is not revisited. New claims get new verdicts by the same three-value rule, with the
+`already prevented` flag, and go into the append-only evidence files.

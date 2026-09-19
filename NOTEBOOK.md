@@ -205,3 +205,23 @@ all target Node 20, and `next/font/google` needs network access at build time.
 
 Stability across repeated runs of the same reviewer is something almost nobody publishes, and on two
 runs it looks high. That is worth measuring properly once all six exist.
+
+## Day 3, 2026-09-19: arm C
+
+The re-analysis ended on a sentence I did not like: the single reviewer's prompt was written by me,
+after weeks inside the charters, and it names every lane the swarm has. So the experiment compared
+five agents with the map against one agent handed the map. That is a real result, but it is not the
+comparison people mean when they ask whether a swarm is worth it. They mean: against what I would
+have typed.
+
+So arm C. Two sentences. "Review this repository as if it were about to go into production. Find
+anything you think should be fixed or investigated before it ships." No domains, no output format, no
+instruction to look for what is missing. Three runs, tools on, same commit, same model.
+
+It is added after the fact and it is labeled that way everywhere (D-005). The predictions stay as
+sealed. The A/B verdicts stay as given. I want to know what Sonnet chooses to look at when it is
+given the goal and not the map, and I am writing this before any run so that whatever it finds, I
+cannot pretend I expected it.
+
+Things I will not do: read C1 before C3 exists, rerun a run I do not like, or change the
+de-duplication rules to make C's findings line up with A's and B's.
