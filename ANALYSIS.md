@@ -323,6 +323,58 @@ after seeing the split.
 - The subject was vibe-coded from one paragraph and reviewed by nobody before the study. Findings
   on a mature codebase would be fewer and harder.
 
+## 9b. The prompt, line by line
+
+This is the whole input arm A received, from `prompts/arm-a.txt`, with what each part did.
+
+> You are reviewing a web application before it goes to production. Read the repository thoroughly:
+> the source, the configuration, the database schema and migrations, the dependency manifest and the
+> documentation. Report everything wrong with it.
+
+Sets the job and names the artifacts to read. Neutral.
+
+> Be comprehensive. Consider correctness, security, authentication and authorization, data handling,
+> input validation, error handling, dependencies, database design, infrastructure and deployment
+> configuration, tests, and documentation.
+
+**This is the swarm's domain list plus correctness, in one sentence.** Security, tests, docs, infra,
+dependencies are the five charters. I wrote it after weeks inside those charters, and I wrote it this
+way deliberately so arm A could not lose for never having been told where to look. The consequence is
+that the "single prompt" carries the swarm's structure compressed into it.
+
+> Consider what is missing as well as what is present: an absent safeguard, an untested path, or an
+> undocumented requirement is a finding.
+
+**This sentence is why prediction 5 failed.** The prediction was that a generalist would not notice
+an absent test suite. This line tells it to look for absences. It noticed in six of six runs.
+
+> You may run commands to investigate. Do not change any file.
+
+Same tool grant as the swarm, by design.
+
+> For every finding, give: a short title; the severity; the file and line; what is actually wrong;
+> the concrete failure it allows; how to fix it.
+
+**This is `shared/output-format.md` restated.** The swarm's own contract. Arm A produced swarm-shaped
+findings because it was asked to.
+
+> Group the findings by severity, most severe first. If you are unsure whether something is a real
+> problem, include it and say what you would need to confirm it. If you checked something and it was
+> fine, do not list it.
+
+The last sentence is the anti-padding rule, and it is the likely reason arm A's precision matched
+the swarm's instead of falling below it.
+
+**What this means for the comparison.** The experiment did not test a specialist swarm against what
+a developer types. It tested five agents holding the charters separately against one agent holding
+the charters summarised into a paragraph, by the person who wrote them. On this subject, outside the
+test lane, the paragraph did the same work as the five agents. That is consistent with the study's
+own thesis, that direction is what converts capability into evidence, and it says the direction
+compresses further than the swarm's design assumed.
+
+The comparison the study set out to make, specialists against a naive "review this code," is arm C.
+It is one sentence and it has not been run.
+
 ## 10. What the evidence supports
 
 **Strongly supported**
