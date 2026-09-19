@@ -9,3 +9,6 @@ A1.2,single-tools,2026-09-18T23:36:10Z,2026-09-18T23:41:02Z,292,sonnet,,,,,,comp
 B1.2,swarm-tools,2026-09-18T23:36:10Z,2026-09-18T23:41:02Z,292,sonnet,,,,,,completed,exit=2 swarm=a18fba7
 A2.2,single-tools,2026-09-18T23:36:20Z,2026-09-18T23:41:03Z,283,sonnet,,,,,,completed,exit=0
 B2.2,swarm-tools,2026-09-18T23:36:20Z,2026-09-18T23:41:03Z,283,sonnet,,,,,,completed,exit=2 swarm=a18fba7
+C3,naive-tools,2026-09-19T01:56:21Z,2026-09-19T01:59:12Z,171,claude-sonnet-5,20,10361,0.3046141,10,0,completed,exit=0 subject=b38c5b0 subtype=success turns=11 added-after-AB=D-005
+C2,naive-tools,2026-09-19T01:56:12Z,2026-09-19T01:59:20Z,188,claude-sonnet-5,18,12870,0.35760440000000004,13,0,completed,exit=0 subject=b38c5b0 subtype=success turns=14 added-after-AB=D-005
+C1,naive-tools,2026-09-19T01:56:06Z,2026-09-19T01:59:42Z,216,claude-sonnet-5,22,13558,0.3669688,12,0,completed,exit=0 subject=b38c5b0 subtype=success turns=13 added-after-AB=D-005
